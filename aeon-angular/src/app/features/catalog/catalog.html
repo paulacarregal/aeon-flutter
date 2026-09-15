@@ -1,0 +1,188 @@
+﻿<div class="catalog-page">
+
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">EXPLORAÇÃO</p>
+
+      <h1>Catálogo</h1>
+
+      <p class="page-description">
+        Locais, eventos e experiências disponíveis na plataforma AEON.
+      </p>
+    </div>
+
+    <div class="catalog-count">
+      <strong>{{ count }}</strong>
+      <span>itens disponíveis</span>
+    </div>
+  </header>
+
+
+  <section class="catalog-toolbar">
+
+    <div>
+      <span class="eyebrow">CATÁLOGO AEON</span>
+      <h2>Experiências cadastradas</h2>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="loadCatalog()"
+      [disabled]="loading"
+    >
+      Atualizar
+    </button>
+
+  </section>
+
+
+  <div
+    *ngIf="loading"
+    class="loading-state"
+  >
+    Carregando catálogo...
+  </div>
+
+
+  <div
+    *ngIf="!loading && error"
+    class="error-state"
+  >
+    {{ error }}
+  </div>
+
+
+  <section
+    *ngIf="!loading && !error"
+    class="catalog-grid"
+  >
+
+    <article
+      *ngFor="let item of items"
+      class="catalog-card"
+    >
+
+      <div class="card-image">
+
+        <img
+          *ngIf="item.image"
+          [src]="item.image"
+          [alt]="item.name"
+          (error)="$any($event.target).style.display = 'none'"
+        />
+
+        <div
+          *ngIf="!item.image"
+          class="image-placeholder"
+        >
+          AEON
+        </div>
+
+        <span class="kind-badge">
+          {{ getKindLabel(item.kind) }}
+        </span>
+
+      </div>
+
+
+      <div class="card-content">
+
+        <div class="card-title-row">
+
+          <div>
+            <h3>{{ item.name }}</h3>
+            <span class="area">{{ item.area }}</span>
+          </div>
+
+          <span class="rating">
+            ★ {{ item.rating }}
+          </span>
+
+        </div>
+
+
+        <p class="address">
+          {{ item.address }}
+        </p>
+
+
+        <div class="card-details">
+
+          <span>
+            {{ item.priceRange }}
+          </span>
+
+          <span>
+            {{ item.openingLabel }}
+          </span>
+
+        </div>
+
+
+        <div
+          *ngIf="item.tags?.length"
+          class="tags"
+        >
+
+          <span
+            *ngFor="let tag of item.tags | slice:0:4"
+            class="tag"
+          >
+            {{ tag }}
+          </span>
+
+        </div>
+
+
+        <div
+          *ngIf="item.profileHints?.length"
+          class="profile-hints"
+        >
+
+          <span class="hint-label">
+            Combina com
+          </span>
+
+          <span
+            *ngFor="let hint of item.profileHints | slice:0:2"
+            class="profile-hint"
+          >
+            {{ hint }}
+          </span>
+
+        </div>
+
+
+        <div class="card-footer">
+
+          <span class="environment">
+            {{ item.indoor ? 'Indoor' : 'Outdoor' }}
+          </span>
+
+          <span *ngIf="item.nightlife">
+            Noite
+          </span>
+
+          <span *ngIf="item.daytime">
+            Dia
+          </span>
+
+        </div>
+
+      </div>
+
+    </article>
+
+
+    <div
+      *ngIf="items.length === 0"
+      class="empty-state"
+    >
+      Nenhum item encontrado no catálogo.
+    </div>
+
+  </section>
+
+</div>
+

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -23,3 +23,4 @@ export class UserService {
     return this.http.get<User[]>(this.apiUrl);
   }
 }
+

@@ -1,0 +1,40 @@
+﻿<div class="maps-page">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">EXPLORAR</p>
+      <h1>Mapa</h1>
+      <p class="subtitle">
+        Explore os locais do catálogo e encontre experiências perto de você.
+      </p>
+    </div>
+
+    <div class="map-count" *ngIf="!loading">
+      {{ items.length }} locais
+    </div>
+  </div>
+
+  <div class="map-container">
+
+    <div
+      *ngIf="loading"
+      class="map-status"
+    >
+      Carregando locais...
+    </div>
+
+    <div
+      *ngIf="error"
+      class="map-status error"
+    >
+      {{ error }}
+    </div>
+
+    <div
+      id="aeon-map"
+      class="aeon-map"
+    ></div>
+
+  </div>
+
+</div>

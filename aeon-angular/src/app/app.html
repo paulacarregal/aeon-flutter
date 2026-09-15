@@ -1,4 +1,4 @@
-<div class="app-layout">
+﻿<div class="app-layout">
 
   <aside class="sidebar">
 
@@ -7,7 +7,7 @@
       <span>AEON</span>
     </div>
 
-    <nav class="navigation">
+        <nav class="navigation">
 
       <!-- Dashboard -->
       <a routerLink="/dashboard" routerLinkActive="active">
@@ -61,7 +61,7 @@
             <path
               fill="url(#users-gradient)"
               fill-rule="evenodd"
-              d="M4 0C2.89543 0 2 .89543 2 2s.89543 2 2 2 2-.89543 2-2-.89543-2-2-2Zm0 4.5c-2.20914 0-4 1.79086-4 4v1.25c0 .2761.223858.5.5.5h1.06224l.44215 3.3161C2.03751 13.8145 2.2494 14 2.5 14h3c.2506 0 .46249-.1855.49561-.4339l.44215-3.3161H7.5c.27614 0 .5-.2239.5-.5V8.5c0-2.20914-1.79086-4-4-4Zm9.5 4H9.25c0-1.17879-.38849-2.26684-1.04443-3.14309C8.81994 4.82312 9.62223 4.5 10.5 4.5 12.433 4.5 14 6.067 14 8c0 .27614-.2239.5-.5.5Zm-1-6.5c0 1.10457-.8954 2-2 2-1.1046 0-2-.8954-2-2s.8954-2 2-2c1.1046 0 2 .8954 2 2Z"
+              d="M4 0C2.89543 0 2 .89543 2 2s.89543 2 2 2 2-.89543 2-2-.89543-2-2-2Zm0 4.5c-2.20914 0-4 1.79086-4 4v1.25c0 .2761.223858.5.5.5h1.06224l.44215 3.3161C2.03751 13.8145 2.2494 14 2.5 14h3c.2506 0 .46249-.1855.49561-.4339l.44215-3.3161H7.5c.27614 0 .5-.2239.5-.5V8.5c0-2.20914-1.79086-4-4-4Zm9.5 4H9.25c0-1.17879-.38849-2.26684-1.04443-3.14309C8.81994 4.82312 9.62223 4.5 10.5 4.5 12.433 4.5 14 6.067 14 8c0 .27614-.2239.5-.5.5Zm-1-6.5c0 1.10457-.8954 2-2 2-1.1046 0-2-.8954-2-2s.8954-2 2-2c1.1046 0 2 .89543 2 2Z"
               clip-rule="evenodd"
             />
             <defs>
@@ -85,7 +85,7 @@
       </a>
 
 
-      <!-- Perfil profissional -->
+      <!-- Profissionais -->
       <a routerLink="/professional-profiles" routerLinkActive="active">
 
         <span class="icon">
@@ -99,7 +99,7 @@
             <path
               fill="url(#profile-gradient)"
               fill-rule="evenodd"
-              d="M2 .499939c-.82843 0-1.5.671571-1.5 1.500001v2.67544c0 2.39651.92056 4.6316 2.47575 6.30852 1.0355 1.1166 2.35234 1.9858 3.86614 2.4904.10263.0342.21359.0342.31622 0 1.5138-.5046 2.83065-1.3738 3.86619-2.4903C12.5794 9.30698 13.5 7.07188 13.5 4.67538V1.99994c0-.82843-.6716-1.500001-1.5-1.500001H2ZM3.88577 9.75161C4.69421 8.97635 5.79147 8.49994 7 8.49994c1.20854 0 2.3058.47641 3.1142 1.25167C9.2897 10.7085 8.22872 11.4692 7 11.9383c-1.22872-.4691-2.28971-1.2298-3.11423-2.18669ZM7 6.99994c1.10457 0 2-.89543 2-2s-.89543-2-2-2-2 .89543-2 2 .89543 2 2 2Z"
+              d="M2 .499939c-.82843 0-1.5.671571-1.5 1.500001v2.67544c0 2.39651.92056 4.6316 2.47575 6.30852 1.0355 1.1166 2.35234 1.9858 3.86614 2.4904.10263.0342.21359.0342.31622 0 1.5138-.5046 2.83065-1.3738 3.86619-2.4903C12.5794 9.30698 13.5 7.07188 13.5 4.67538V1.99994c0-.82843-.6716-1.500001-1.5-1.500001H2ZM3.88577 9.75161C4.69421 8.97635 5.79147 8.49994 7 8.49994c1.20854 0 2.3058.47641 3.1142 1.25167C9.2897 10.7085 8.22872 11.4692 7 11.9383c-1.22872-.4691-2.28971-1.2298-3.11423-2.18669ZM7 6.99994c1.10457 0 2-.89543 2-2s-.89543-2-2-2-2 .89543-2 2 0 2 0 2Z"
               clip-rule="evenodd"
             />
             <defs>
@@ -119,6 +119,113 @@
         </span>
 
         Profissionais
+
+      </a>
+
+
+      <!-- Catálogo -->
+      <a routerLink="/catalog" routerLinkActive="active">
+
+        <span class="icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            height="18"
+            width="18"
+          >
+            <defs>
+              <linearGradient
+                id="category-gradient"
+                x1="3"
+                y1="3"
+                x2="21"
+                y2="21"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#1b4dff"/>
+                <stop offset="1" stop-color="#ff51e3"/>
+              </linearGradient>
+            </defs>
+
+            <rect
+              x="3"
+              y="3"
+              width="7"
+              height="7"
+              rx="1.5"
+              fill="url(#category-gradient)"
+            />
+
+            <rect
+              x="14"
+              y="3"
+              width="7"
+              height="7"
+              rx="1.5"
+              fill="url(#category-gradient)"
+            />
+
+            <rect
+              x="3"
+              y="14"
+              width="7"
+              height="7"
+              rx="1.5"
+              fill="url(#category-gradient)"
+            />
+
+            <rect
+              x="14"
+              y="14"
+              width="7"
+              height="7"
+              rx="1.5"
+              fill="url(#category-gradient)"
+            />
+          </svg>
+        </span>
+
+        Catálogo
+
+      </a>
+
+
+      <!-- Mapa -->
+      <a routerLink="/maps" routerLinkActive="active">
+
+        <span class="icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            height="18"
+            width="18"
+          >
+            <defs>
+              <linearGradient
+                id="maps-gradient"
+                x1="3"
+                y1="3"
+                x2="21"
+                y2="21"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#1b4dff"/>
+                <stop offset="1" stop-color="#ff51e3"/>
+              </linearGradient>
+            </defs>
+
+            <path
+              fill="url(#maps-gradient)"
+              fill-rule="evenodd"
+              d="M12 2C7.589 2 4 5.589 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.411-3.589-8-8-8Zm0 11.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </span>
+
+        Mapa
 
       </a>
 
@@ -167,3 +274,5 @@
   </main>
 
 </div>
+
+

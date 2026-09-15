@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/firestore_paths.dart';
-import '../../../routes/route_names.dart';
+import '../../../shared/routes/route_names.dart';
 import '../../feed/presentation/post_provider.dart';
 import '../data/user_service.dart';
 import '../../reviews/data/review_service.dart';
@@ -972,7 +972,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               icon: Icons.account_balance_outlined,
               title: 'Conta profissional',
               subtitle:
-                  'Ative um perfil para seu estabelecimento, marca ou conteúdo.',
+                  'Ative um perfil para seu estabelecimento, marca ou conteÃºdo.',
               onTap: () async {
                 await Navigator.pushNamed(
                   context,

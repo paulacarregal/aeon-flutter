@@ -36,3 +36,6 @@ build/
 *.json
 .env
 .env.*
+
+# Catalogo publico utilizado pelo CatalogService
+!src/main/resources/data/sp_catalog.json

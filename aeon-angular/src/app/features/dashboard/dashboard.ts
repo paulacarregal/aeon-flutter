@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import { User, UserService } from '../../core/services/user.service';
 import {
@@ -9,7 +9,7 @@ import {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
