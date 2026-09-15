@@ -1,270 +1,814 @@
-# 🚀 Como Executar o AEON
+# **Como Executar o AEON**
 
-Este documento apresenta os procedimentos necessários para executar os principais componentes do projeto AEON:
+Este documento descreve como executar os componentes atuais do projeto:
 
-* Aplicativo Flutter;
-* Backend Spring Boot;
-* Dashboard administrativo Angular.
+* Aplicativo Flutter.
+* Backend Spring Boot.
+* Dashboard Angular.
 
----
+O FastAPI legado foi removido da arquitetura atual. O backend oficial e o Spring Boot.
 
-## 1. Pré-requisitos
+## **1. Pre-requisitos**
 
-Antes de iniciar, verifique se as seguintes ferramentas estão instaladas:
+Instale e configure:
 
-* Flutter SDK;
-* Dart SDK compatível com o projeto;
-* Java JDK 17;
-* Node.js e npm;
-* Angular CLI;
-* Git;
-* Android Studio ou VS Code;
-* Chrome ou Microsoft Edge.
+* Flutter SDK.
+* Dart SDK compativel com o Flutter instalado.
+* Android Studio ou VS Code.
+* Java JDK 21 para o backend Spring Boot.
+* Node.js e npm.
+* Angular CLI.
+* Git.
+* Chrome, Edge, emulador Android ou dispositivo fisico.
 
-Para executar o aplicativo mobile em um dispositivo físico ou emulador, também será necessário configurar um ambiente Android compatível.
+Verificacoes uteis:
 
-### Verificar o ambiente Flutter
-
-```bash
+```bash id="v8v7oj"
 flutter doctor
-```
-
-### Verificar a versão do Java
-
-```bash
 java -version
-```
-
-### Verificar o Node.js
-
-```bash
 node -v
-```
-
-### Verificar o Angular CLI
-
-```bash
+npm -v
 ng version
 ```
 
----
+O backend Spring Boot requer **Java 21**.
 
-## 2. Executar o Aplicativo Flutter
+## **2. Estrutura do Projeto**
+
+A partir da pasta raiz:
+
+```text id="q4u9bc"
+AeonFlutter/
+|
+|-- flutter_application/   # Aplicativo Flutter
+|-- aeon-backend/           # Backend Spring Boot
+|-- aeon-angular/           # Dashboard Angular
+|-- README.md
+```
+
+Para executar a aplicacao completa localmente, recomenda-se utilizar terminais separados para cada componente.
+
+## **3. Backend Spring Boot**
+
+O backend pode ser utilizado de duas formas:
+
+1. utilizando a API publicada no Render;
+2. executando o Spring Boot localmente.
+
+### **3.1 Backend publicado**
+
+API:
+
+```text id="7r1d4m"
+https://aeon-backend-deploy.onrender.com
+```
+
+Swagger:
+
+```text id="4s6f3h"
+https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
+```
+
+Health check:
+
+```text id="h3y6q8"
+https://aeon-backend-deploy.onrender.com/api/health
+```
+
+Quando o objetivo for apenas executar o Flutter ou Angular utilizando o ambiente publicado, nao e necessario iniciar o Spring Boot localmente.
+
+### **3.2 Executar o backend localmente**
+
+Abra um terminal na raiz do projeto:
+
+```powershell id="5h0p9a"
+cd aeon-backend
+```
+
+Com Maven instalado:
+
+```powershell id="p1z4b7"
+mvn spring-boot:run
+```
+
+No Windows, a opcao recomendada e utilizar o Maven Wrapper:
+
+```powershell id="w6c2q1"
+.\mvnw.cmd spring-boot:run
+```
+
+O servidor sera iniciado, por padrao, em:
+
+```text id="e3s9p5"
+http://localhost:8080
+```
+
+### **3.3 Verificar o backend local**
+
+Em outro terminal:
+
+```powershell id="u7k1r9"
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/api/health" `
+    -Method GET
+```
+
+Uma resposta esperada e semelhante a:
+
+```json id="j5w2x8"
+{
+  "status": "UP",
+  "service": "AEON Backend",
+  "version": "1.0.0"
+}
+```
+
+### **3.4 Swagger local**
+
+Com o backend rodando:
+
+```text id="f0m6s3"
+http://localhost:8080/swagger-ui/index.html
+```
+
+O Swagger permite consultar os endpoints disponíveis e executar requisicoes diretamente pelo navegador.
+
+## **4. Configuracao do Firebase para o Backend**
+
+O backend utiliza Firebase Admin SDK para operacoes do lado servidor.
+
+A credencial administrativa deve ser fornecida por configuracao de ambiente e **nao deve ser adicionada ao Git**.
+
+A variavel utilizada e:
+
+```text id="d8v4k2"
+GOOGLE_APPLICATION_CREDENTIALS
+```
+
+No PowerShell, exemplo:
+
+```powershell id="z1m7q4"
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\caminho\seguro\firebase-service-account.json"
+```
+
+Depois execute:
+
+```powershell id="n4b8x0"
+.\mvnw.cmd spring-boot:run
+```
+
+Os arquivos de credenciais do Firebase utilizados pelo aplicativo tambem devem permanecer fora da entrega versionada quando forem arquivos de ambiente/seguranca.
+
+## **5. Testes Automatizados do Backend**
+
+Para executar todos os testes:
+
+```powershell id="c3r9v1"
+cd aeon-backend
+.\mvnw.cmd clean test
+```
+
+Os testes relacionados ao fluxo de reviews incluem:
+
+```text id="a8k5s2"
+src/test/java/com/aeon/backend/controller/ReviewControllerTest.java
+
+src/test/java/com/aeon/backend/service/ReviewValidationServiceTest.java
+```
+
+Para apenas gerar o pacote sem executar os testes:
+
+```powershell id="m6x2p8"
+.\mvnw.cmd clean package -DskipTests
+```
+
+O pacote sera gerado em:
+
+```text id="r5t1n7"
+target/aeon-backend-0.0.1-SNAPSHOT.jar
+```
+
+Para executar o pacote:
+
+```powershell id="q9c4w6"
+java -jar target/aeon-backend-0.0.1-SNAPSHOT.jar
+```
+
+Para parar o servidor:
+
+```text id="k2v8d1"
+Ctrl + C
+```
+
+## **6. Testar o Endpoint de Clima**
+
+Com o backend local executando:
+
+```powershell id="s7p3h0"
+$body = '{"city":"Sao Paulo"}'
+
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/weather" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+O mesmo fluxo pode ser testado no backend publicado:
+
+```powershell id="b4n9q6"
+$body = '{"city":"Sao Paulo"}'
+
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/weather" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+Fluxo:
+
+```text id="t5y1c7"
+Flutter
+    |
+    v
+Spring Boot
+    |
+    v
+OpenWeather
+```
+
+A chave do OpenWeather nao precisa ficar exposta diretamente no aplicativo para que o backend realize a integracao.
+
+## **7. Testar Validacao de Reviews**
+
+A API possui os endpoints:
+
+```http id="p8m3x6"
+POST /reviews/validate
+POST /reviews/validate-and-enrich
+```
+
+Exemplo de teste local:
+
+```powershell id="h2q7v9"
+$body = @{
+    userId     = "teste-flutter"
+    placeId    = "bar-tan-tan"
+    placeName  = "Bar Tan Tan"
+    address    = "Rua Fradique Coutinho, 153 - Pinheiros"
+    rating     = 5
+    comment    = "Experiencia muito boa"
+    tags       = @("ambiente", "drinks")
+    spendRange = "50+"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/reviews/validate" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+Teste contra o backend publicado:
+
+```powershell id="x4n8s1"
+$body = @{
+    userId     = "teste-flutter"
+    placeId    = "bar-tan-tan"
+    placeName  = "Bar Tan Tan"
+    address    = "Rua Fradique Coutinho, 153 - Pinheiros"
+    rating     = 5
+    comment    = "Experiencia muito boa"
+    tags       = @("ambiente", "drinks")
+    spendRange = "50+"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/reviews/validate" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+O backend utiliza o catalogo:
+
+```text id="c7m2v5"
+aeon-backend/src/main/resources/data/sp_catalog.json
+```
+
+Esse catalogo fornece dados estruturados dos locais, incluindo tags, `profileHints` e `reviewPrompts`.
+
+Fluxo:
+
+```text id="n9f3k1"
+Flutter
+    |
+    | POST /reviews/validate
+    v
+Spring Boot
+    |
+    +--> valida dados
+    +--> identifica local
+    +--> consulta sp_catalog.json
+    +--> combina tags
+    +--> gera profileHints
+    +--> gera reviewPrompts
+    |
+    v
+Flutter
+    |
+    +--> grava resultado validado no Firestore
+```
+
+## **8. Aplicativo Flutter**
 
 Acesse a pasta do aplicativo:
 
-```bash
+```powershell id="u1j6q4"
 cd flutter_application
 ```
 
-Instale as dependências:
+Instale as dependencias:
 
-```bash
+```powershell id="f8w2r5"
 flutter pub get
 ```
 
 Verifique os dispositivos disponíveis:
 
-```bash
+```powershell id="v3c9n7"
 flutter devices
 ```
 
-### Executar no navegador
+### **8.1 Executar no Edge**
 
-Para utilizar o Microsoft Edge:
-
-```bash
+```powershell id="d6p1s8"
 flutter run -d edge
 ```
 
-Ou o Google Chrome:
+### **8.2 Executar no Chrome**
 
-```bash
+```powershell id="q2m7x4"
 flutter run -d chrome
 ```
 
-> Caso seja necessário utilizar uma API específica, execute o aplicativo com as configurações definidas pelo projeto.
+### **8.3 Executar em dispositivo Android**
 
-### Executar no Android
+Primeiro:
 
-Com um emulador ou dispositivo físico conectado:
-
-```bash
-flutter run -d ID_DO_DISPOSITIVO
-```
-
-O identificador do dispositivo pode ser consultado com:
-
-```bash
+```powershell id="a5r8k2"
 flutter devices
 ```
 
----
+Depois:
 
-## 3. Configuração do Firebase
+```powershell id="y9c3v6"
+flutter run -d ID_DO_DISPOSITIVO
+```
 
-O aplicativo utiliza arquivos de configuração do Firebase para integração com os serviços utilizados pelo projeto.
+O identificador deve ser substituido pelo dispositivo exibido pelo comando `flutter devices`.
 
-Os principais arquivos são:
+## **9. Configuracao do Flutter**
 
-```text
+O aplicativo esta configurado para utilizar o backend Spring Boot publicado:
+
+```text id="e7b4n0"
+https://aeon-backend-deploy.onrender.com
+```
+
+A configuracao central do backend fica no aplicativo Flutter em:
+
+```text id="m2q8s5"
+lib/core/app_config.dart
+```
+
+A comunicacao com o backend e centralizada pelo servico de API do aplicativo.
+
+Entre os fluxos integrados estao:
+
+* health check;
+* clima;
+* validacao de reviews;
+* recursos de usuarios;
+* recursos de perfis profissionais.
+
+## **10. Firebase no Flutter**
+
+O aplicativo utiliza Firebase Authentication e outros servicos Firebase.
+
+Arquivos esperados para a configuracao do aplicativo:
+
+```text id="w5n1p7"
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 ```
 
-Esses arquivos devem estar corretamente configurados para que a aplicação possa utilizar os serviços do Firebase.
+Os arquivos que contem credenciais ou configuracoes sensiveis devem ser tratados de acordo com a configuracao do ambiente e nao devem ser publicados indevidamente.
 
----
+O login segue:
 
-## 4. Executar o Backend Spring Boot
-
-Acesse a pasta do backend:
-
-```bash
-cd aeon-backend
+```text id="r3k9v2"
+Flutter
+    |
+    v
+Firebase Authentication
 ```
 
-O projeto utiliza **Java 17** e Maven.
+Os dados persistidos pelo aplicativo utilizam os servicos Firebase correspondentes, incluindo Cloud Firestore.
 
-Para iniciar o backend com o Maven:
+## **11. Dashboard Angular**
 
-```bash
-mvn spring-boot:run
-```
+Abra outro terminal na raiz do projeto:
 
-Também é possível utilizar o Maven Wrapper.
-
-### Windows
-
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-
-### Linux/macOS
-
-```bash
-./mvnw spring-boot:run
-```
-
-Após a inicialização, a API estará disponível no endereço configurado no projeto.
-
----
-
-## 5. Backend Publicado
-
-O backend também está disponível em ambiente de nuvem:
-
-**https://aeon-backend-deploy.onrender.com**
-
-O dashboard administrativo pode ser configurado para consumir essa versão da API.
-
-### Swagger
-
-A documentação interativa da API está disponível em:
-
-**https://aeon-backend-deploy.onrender.com/swagger-ui/index.html**
-
-> O serviço hospedado pode apresentar um tempo maior de resposta na primeira requisição após um período de inatividade.
-
----
-
-## 6. Executar o Dashboard Angular
-
-Acesse a pasta do dashboard:
-
-```bash
+```powershell id="t8m4q1"
 cd aeon-angular
 ```
 
-Instale as dependências:
+Instale as dependencias:
 
-```bash
+```powershell id="j6v2p9"
 npm install
 ```
 
-Inicie a aplicação:
+Inicie o servidor de desenvolvimento:
 
-```bash
+```powershell id="x1c7r5"
 ng serve
 ```
 
-O dashboard normalmente estará disponível em:
+Acesse:
 
-```text
+```text id="b9n3w6"
 http://localhost:4200
 ```
 
----
+O Angular utiliza a API Spring Boot para os recursos administrativos disponibilizados pelo backend.
 
-## 7. Comunicação com o Backend
+Backend publicado utilizado pela aplicacao:
 
-O dashboard Angular realiza requisições HTTP para a API REST.
-
-A URL base publicada é:
-
-```text
-https://aeon-backend-deploy.onrender.com/api
+```text id="k4s8y2"
+https://aeon-backend-deploy.onrender.com
 ```
 
-Entre os endpoints utilizados pelo projeto estão:
+## **12. Fluxos de Integracao**
 
-```text
-/api/users
-/api/professional-profiles
+Arquitetura geral:
+
+```text id="p7m2d9"
+Flutter
+    |
+    v
+Spring Boot REST API
+    |
+    +--> Firebase Authentication
+    +--> Cloud Firestore
+    +--> OpenWeather
+    +--> Catalogo AEON
+
+Angular
+    |
+    v
+Spring Boot REST API
+    |
+    +--> Firebase Authentication
+    +--> Cloud Firestore
 ```
 
----
+Fluxos relevantes:
 
-## 8. Ordem Recomendada para Execução
-
-Para facilitar testes e demonstrações, recomenda-se a seguinte sequência:
-
-### 1. Verificar o backend
-
-Acesse a documentação Swagger:
+### **Login**
 
 ```text
-https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
+Flutter -> Firebase Authentication
 ```
 
-Caso o serviço esteja iniciando após um período de inatividade, aguarde o carregamento da página.
+### **Clima**
 
-### 2. Executar o dashboard Angular
+```text
+Flutter
+    -> Spring Boot
+        -> OpenWeather
+```
 
-```bash
+### **Reviews**
+
+```text
+Flutter
+    -> Spring Boot /reviews/validate
+        -> Catalogo AEON
+        -> validacao/enriquecimento
+    -> Firestore
+```
+
+### **Perfis profissionais**
+
+```text
+Flutter / Angular
+    -> Spring Boot
+        -> Cloud Firestore
+```
+
+### **Usuarios administrativos**
+
+```text
+Angular
+    -> Spring Boot
+        -> Firebase Authentication
+```
+
+## **13. Execucao Completa Local**
+
+Para executar a solucao completa localmente, utilize tres terminais.
+
+### **Terminal 1 — Backend**
+
+```powershell
+cd aeon-backend
+.\mvnw.cmd spring-boot:run
+```
+
+Backend:
+
+```text
+http://localhost:8080
+```
+
+### **Terminal 2 — Angular**
+
+```powershell
 cd aeon-angular
+npm install
 ng serve
 ```
 
-Depois, acesse:
+Dashboard:
 
 ```text
 http://localhost:4200
 ```
 
-### 3. Executar o aplicativo Flutter
+### **Terminal 3 — Flutter**
 
-No diretório do aplicativo:
+```powershell
+cd flutter_application
+flutter pub get
+flutter devices
+flutter run -d chrome
+```
 
-```bash
+O fluxo recomendado e:
+
+```text id="g8q4n1"
+Terminal 1
+Spring Boot
+    |
+    v
+localhost:8080
+
+Terminal 2
+Angular
+    |
+    v
+localhost:4200
+
+Terminal 3
+Flutter
+    |
+    v
+Aplicativo
+```
+
+## **14. Execucao Usando o Backend Publicado**
+
+Tambem e possivel executar apenas Flutter e Angular utilizando o backend publicado no Render.
+
+Nesse caso:
+
+### **Flutter**
+
+```powershell
 cd flutter_application
 flutter pub get
 flutter run -d chrome
 ```
 
-Ou selecione outro dispositivo disponível com:
+### **Angular**
 
-```bash
+Em outro terminal:
+
+```powershell
+cd aeon-angular
+npm install
+ng serve
+```
+
+Backend utilizado:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+Nesse modo nao e necessario iniciar:
+
+```text
+aeon-backend
+```
+
+localmente.
+
+## **15. Ordem Recomendada para Demonstracao**
+
+1. Verificar o backend publicado pelo health check.
+2. Abrir o Swagger.
+3. Executar o Angular com `ng serve`.
+4. Executar o Flutter no navegador ou dispositivo fisico.
+5. Realizar login.
+6. Verificar mapa e localizacao.
+7. Verificar consulta de clima.
+8. Criar uma review.
+9. Validar o fluxo de review pelo Spring Boot.
+10. Verificar a gravacao da review no Firestore.
+11. Verificar os recursos de perfil profissional.
+
+## **16. Validacao Rapida do Backend Publicado**
+
+Antes de iniciar uma demonstracao, executar:
+
+```powershell
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/api/health" `
+    -Method GET
+```
+
+Depois, se necessario, testar clima:
+
+```powershell
+$body = '{"city":"Sao Paulo"}'
+
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/weather" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+E review:
+
+```powershell
+$body = @{
+    userId     = "teste-flutter"
+    placeId    = "bar-tan-tan"
+    placeName  = "Bar Tan Tan"
+    address    = "Rua Fradique Coutinho, 153 - Pinheiros"
+    rating     = 5
+    comment    = "Experiencia muito boa"
+    tags       = @("ambiente", "drinks")
+    spendRange = "50+"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/reviews/validate" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+## **17. Repositorios e Deploy**
+
+A aplicacao completa esta no repositorio principal do AEON, na branch:
+
+```text
+entrega-aeon
+```
+
+O backend destinado ao deploy possui repositorio separado:
+
+```text
+Manu11000/aeon-backend-deploy
+```
+
+Branch de deploy:
+
+```text
+main
+```
+
+O Render utiliza esse repositorio separado para hospedar o backend publicado.
+
+Portanto:
+
+```text id="s6k1v9"
+Repositorio principal
+    |
+    +--> Flutter
+    +--> Angular
+    +--> Spring Boot
+         |
+         +--> entrega-aeon
+
+Repositorio de deploy
+    |
+    +--> aeon-backend-deploy
+         |
+         +--> main
+              |
+              +--> Render
+```
+
+Nao deve ser feito push do backend para o repositorio ou branch errados.
+
+## **18. Solucao de Problemas**
+
+### **Backend nao inicia**
+
+Verifique:
+
+```powershell
+java -version
+```
+
+O projeto requer Java 21.
+
+Depois:
+
+```powershell
+.\mvnw.cmd clean test
+```
+
+Se o problema estiver relacionado ao Firebase, verifique a configuracao de:
+
+```text
+GOOGLE_APPLICATION_CREDENTIALS
+```
+
+### **Flutter nao encontra dispositivo**
+
+Execute:
+
+```powershell
 flutter devices
 ```
 
----
+E confirme se o Chrome, Edge, emulador ou dispositivo fisico esta disponivel.
 
-## 9. Observações
+### **Angular nao inicia**
 
-* O backend publicado permite que diferentes máquinas utilizem a mesma API;
-* O Flutter e o dashboard Angular podem ser executados separadamente;
-* O Firebase deve estar corretamente configurado para os recursos que dependem de seus serviços;
-* O backend hospedado pode apresentar uma resposta inicial mais lenta após períodos de inatividade;
-* O Swagger pode ser utilizado para verificar a disponibilidade da API.
+Verifique:
+
+```powershell
+node -v
+npm -v
+ng version
+```
+
+Depois:
+
+```powershell
+npm install
+ng serve
+```
+
+### **Backend publicado parece lento**
+
+O servico no Render pode demorar mais na primeira requisicao apos um periodo de inatividade.
+
+Execute novamente:
+
+```powershell
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/api/health" `
+    -Method GET
+```
+
+### **Erro de comunicacao Flutter -> Backend**
+
+Confirme se a URL configurada no Flutter aponta para:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+E verifique primeiro:
+
+```text
+/api/health
+```
+
+## **19. Observacoes Importantes**
+
+* O backend oficial atual e Spring Boot.
+* O FastAPI legado nao deve ser iniciado para executar a arquitetura atual.
+* O backend utiliza Java 21.
+* O backend local utiliza a porta `8080` por padrao.
+* O Render utiliza a porta fornecida pela variavel de ambiente `PORT`.
+* O Flutter utiliza o backend Spring Boot para clima e validacao de reviews.
+* O catalogo `sp_catalog.json` faz parte do backend.
+* O catalogo e utilizado no enriquecimento das reviews.
+* Credenciais Firebase nao devem ser versionadas.
+* O Swagger pode ser utilizado para inspecionar e testar a API.
+* O backend publicado pode apresentar demora na primeira requisicao apos inatividade.
+* Alteracoes de deploy devem respeitar a separacao entre o repositorio principal e `aeon-backend-deploy`.
+* Nao e necessario iniciar nenhum backend Python para a versao atual.
+* O antigo FastAPI nao e dependencia runtime do Flutter, Angular ou Spring.

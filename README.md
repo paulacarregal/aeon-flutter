@@ -1,260 +1,280 @@
-# ÆON ✨
+# **AEON**
 
-### Seu Motor Inteligente de Experiências Urbanas
+## **Visao Geral**
 
----
+O AEON e uma plataforma multiplataforma para descoberta de experiencias urbanas personalizadas. A solucao combina perfil do usuario, localizacao, clima, avaliacoes e inteligencia artificial para recomendar locais, rotas e experiencias em Sao Paulo.
 
-O **AEON** é uma plataforma multiplataforma desenvolvida para proporcionar uma experiência personalizada de descoberta e exploração urbana.
+Arquitetura atual:
 
-A aplicação utiliza informações como **perfil do usuário, localização, condições climáticas, preferências e contexto** para apresentar recomendações de lugares e experiências de forma mais inteligente e personalizada.
+```text
+Flutter App
+    -> Spring Boot REST API
+        -> Firebase Authentication
+        -> Cloud Firestore
+        -> APIs externas
 
-A solução é composta por:
+Angular Dashboard
+    -> Spring Boot REST API
+```
 
-* Aplicativo multiplataforma desenvolvido em **Flutter**;
-* Backend REST desenvolvido em **Java com Spring Boot**;
-* **Firebase** para serviços de autenticação e recursos complementares;
-* Banco de dados **MySQL**;
-* Dashboard administrativo desenvolvido em **Angular**.
+O backend principal da aplicacao e o Spring Boot. O backend FastAPI utilizado em fase anterior foi consolidado no Spring Boot e nao faz mais parte da arquitetura atual.
 
----
+## **Funcionalidades**
 
-## 🎯 Objetivo
+### **Aplicativo Flutter**
 
-O AEON busca ir além de uma simples lista de lugares. A proposta é oferecer uma experiência de descoberta urbana personalizada, considerando diferentes características e preferências do usuário.
+* Cadastro e login com Firebase Authentication.
+* Onboarding por quiz para formacao do perfil de recomendacao.
+* Perfil do usuario com preferencias ajustaveis.
+* Feed de reviews, curtidas e favoritos.
+* Criacao e publicacao de avaliacoes.
+* Validacao de reviews via Spring Boot.
+* Mapa interativo com OpenStreetMap.
+* Captura de localizacao do dispositivo.
+* Consulta de clima via backend Spring Boot.
+* Recomendacoes personalizadas com apoio de Firebase AI Logic/Gemini.
+* Simulacao de rotas e modais de deslocamento.
 
-A plataforma combina:
+### **Backend Spring Boot**
 
-* Perfil de interesses criado durante o onboarding;
-* Localização atual do usuário;
-* Condições climáticas;
-* Preferências de deslocamento;
-* Recomendações personalizadas;
-* Avaliações e contribuições da comunidade;
-* Recursos de inteligência artificial.
+* API REST principal do AEON.
+* Health check.
+* Consulta de usuarios do Firebase Authentication.
+* CRUD de perfis profissionais usando Firestore.
+* Validacao e enriquecimento de reviews.
+* Integracao com OpenWeather para clima.
+* Documentacao via Swagger/OpenAPI.
+* Configuracao de seguranca com Spring Security.
 
-As recomendações podem ser exploradas por meio de um mapa interativo, permitindo a consulta de locais e diferentes alternativas de deslocamento.
+### **Dashboard Angular**
 
----
+* Painel administrativo web.
+* Consulta de usuarios.
+* Consulta e gerenciamento de perfis profissionais.
+* Metricas e visualizacao geral da plataforma.
+* Formularios e filtros para apoio administrativo.
 
-## 🚀 Funcionalidades
+## **Tecnologias Adotadas**
 
-### 📱 Aplicativo Mobile
+| Categoria                    | Tecnologia                      |
+| ---------------------------- | ------------------------------- |
+| Mobile                       | Flutter, Dart                   |
+| Estado no app                | Provider                        |
+| Backend                      | Java, Spring Boot, Spring MVC   |
+| API                          | REST, JSON                      |
+| Seguranca backend            | Spring Security                 |
+| Autenticacao                 | Firebase Authentication         |
+| Banco atual                  | Cloud Firestore                 |
+| Integracao Firebase servidor | Firebase Admin SDK              |
+| IA                           | Firebase AI Logic / Gemini      |
+| Clima                        | OpenWeather via Spring Boot     |
+| Mapas                        | Flutter Map / OpenStreetMap     |
+| Localizacao                  | Geolocator                      |
+| Dashboard web                | Angular, TypeScript, HttpClient |
+| Documentacao API             | Swagger / OpenAPI               |
+| Build backend                | Maven                           |
+| Hospedagem backend           | Render                          |
+| IDEs de apoio                | Android Studio, VS Code         |
+| Versionamento                | Git, GitHub                     |
 
-* Cadastro e autenticação de usuários;
-* Integração com Firebase Authentication;
-* Onboarding com quiz para identificação de interesses;
-* Perfil personalizado;
-* Feed de avaliações e contribuições;
-* Curtidas e favoritos;
-* Publicações salvas;
-* Cadastro de novos locais;
-* Criação de avaliações;
-* Sistema de notas e tags;
-* Informações sobre faixa média de gastos;
-* Mapa interativo;
-* Captura da localização do dispositivo;
-* Consulta das condições climáticas;
-* Recomendações personalizadas;
-* Integração com recursos de inteligência artificial;
-* Simulação de rotas;
-* Opções de deslocamento por carro, transporte público, caminhada e aplicativo de transporte.
+Observacao: o projeto contem dependencias de JPA/H2 no backend Spring, mas o fluxo atual de Professional Profile usa Firestore via Firebase Admin SDK. H2/JPA nao sao a persistencia ativa desse fluxo.
 
----
+## **Endpoints Principais**
 
-## 🖥️ Dashboard Administrativo
+Base publicada:
 
-O AEON também possui um dashboard administrativo desenvolvido em **Angular**, responsável pelo gerenciamento e visualização das informações da plataforma.
-
-Entre os recursos disponíveis estão:
-
-* Visualização geral da plataforma;
-* Consulta de usuários cadastrados;
-* Consulta de perfis profissionais;
-* Visualização de métricas;
-* Pesquisa de profissionais;
-* Filtros por status e categoria;
-* Cadastro de novos perfis profissionais;
-* Integração com a API REST.
-
----
-
-## ⚙️ Backend
-
-O backend da solução foi desenvolvido em **Java com Spring Boot** e disponibiliza uma API REST para comunicação com os demais componentes da plataforma.
-
-Suas principais responsabilidades incluem:
-
-* Gerenciamento de usuários;
-* Gerenciamento de perfis profissionais;
-* Operações CRUD;
-* Persistência de dados;
-* Validação de informações;
-* Tratamento de erros;
-* Controle de acesso;
-* Exposição de endpoints REST;
-* Integração com serviços do Firebase;
-* Documentação da API com Swagger/OpenAPI.
-
----
-
-## ☁️ Infraestrutura
-
-O backend está publicado em ambiente de nuvem utilizando o **Render**, permitindo que diferentes aplicações e ambientes da equipe consumam a mesma API.
-
-**API publicada:**
+```text
 https://aeon-backend-deploy.onrender.com
-
-A utilização de uma API hospedada reduz a dependência de um servidor local e facilita a integração entre os componentes do projeto.
-
----
-
-## 🔥 Firebase
-
-O Firebase é utilizado como parte da infraestrutura da aplicação.
-
-Os principais serviços utilizados incluem:
-
-* Firebase Authentication;
-* Cloud Firestore;
-* Firebase App Check;
-* Firebase AI Logic.
-
-O backend também utiliza o **Firebase Admin SDK** para integração com os serviços do Firebase.
-
----
-
-## 🧩 Tecnologias Utilizadas
-
-| Categoria               | Tecnologia                  |
-| ----------------------- | --------------------------- |
-| Linguagem mobile        | Dart                        |
-| Framework mobile        | Flutter                     |
-| Gerenciamento de estado | Provider                    |
-| Backend                 | Java                        |
-| Framework backend       | Spring Boot                 |
-| API                     | Spring MVC / REST           |
-| Persistência            | Spring Data JPA             |
-| Banco de dados          | MySQL                       |
-| Autenticação            | Firebase Authentication     |
-| Integração Firebase     | Firebase Admin SDK          |
-| Segurança               | Spring Security             |
-| Documentação da API     | Swagger / OpenAPI           |
-| Dashboard               | Angular                     |
-| Comunicação web         | Angular HttpClient          |
-| Inteligência artificial | Firebase AI Logic / Gemini  |
-| Mapas                   | Flutter Map / OpenStreetMap |
-| Localização             | Geolocator                  |
-| Requisições HTTP        | HTTP / Dio                  |
-| Hospedagem do backend   | Render                      |
-| Controle de versão      | Git / GitHub                |
-| IDEs                    | Android Studio / VS Code    |
-
----
-
-## 🏗️ Arquitetura da Solução
-
-```text
-┌───────────────────────────────┐
-│       Aplicativo Flutter       │
-│                               │
-│ Usuário • Mapa • Reviews      │
-│ Perfil • Recomendações        │
-└───────────────┬───────────────┘
-                │
-                │ HTTP / REST
-                ▼
-┌───────────────────────────────┐
-│       Spring Boot API          │
-│                               │
-│ Controllers                   │
-│ Services                      │
-│ Models / Entities             │
-│ Spring Security               │
-└───────────────┬───────────────┘
-                │
-        ┌───────┴────────┐
-        ▼                ▼
-┌──────────────┐  ┌──────────────┐
-│    MySQL     │  │   Firebase   │
-│              │  │              │
-│ Dados do     │  │ Auth e       │
-│ sistema      │  │ Firestore    │
-└──────────────┘  └──────────────┘
-
-
-┌───────────────────────────────┐
-│       Dashboard Angular        │
-│                               │
-│ Usuários • Profissionais      │
-│ Métricas • Formulários        │
-└───────────────┬───────────────┘
-                │
-                │ HTTP / REST
-                ▼
-         Spring Boot API
 ```
 
----
+Endpoints usados pela solucao atual:
 
-## 📁 Estrutura do Projeto
-
-```text
-AEON_F/
-│
-├── flutter_application/
-│   ├── lib/
-│   ├── android/
-│   ├── ios/
-│   ├── web/
-│   ├── pubspec.yaml
-│   └── ...
-│
-├── aeon-backend/
-│   ├── src/
-│   │   └── main/
-│   │       └── java/
-│   │           └── com/
-│   │               └── aeon/
-│   │                   └── backend/
-│   │                       ├── config/
-│   │                       ├── controller/
-│   │                       ├── model/
-│   │                       ├── repository/
-│   │                       └── service/
-│   ├── pom.xml
-│   └── ...
-│
-└── aeon-angular/
-    ├── src/
-    │   └── app/
-    │       ├── core/
-    │       └── features/
-    ├── angular.json
-    ├── package.json
-    └── ...
+```http
+GET  /api/health
+GET  /api/users
+GET  /api/professional-profiles
+GET  /api/professional-profiles/{id}
+POST /api/professional-profiles
+PUT  /api/professional-profiles/{id}
+DELETE /api/professional-profiles/{id}
+POST /weather
+POST /reviews/validate
+POST /reviews/validate-and-enrich
 ```
 
----
+Swagger:
 
-## 📚 Documentação
+```text
+https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
+```
 
-Para mais informações sobre a execução e os componentes do projeto, consulte:
+## **Catalogo e Validacao de Reviews**
 
-* [`EXECUTE.md`](EXECUTE.md) — instruções para execução do projeto;
-* [`BACKEND.md`](BACKEND.md) — documentação do backend Spring Boot;
-* Swagger/OpenAPI — documentação interativa da API.
+O backend utiliza o catalogo estruturado do AEON localizado em:
 
----
+```text
+aeon-backend/src/main/resources/data/sp_catalog.json
+```
 
-## 👥 Desenvolvedores
+O catalogo fornece informacoes dos locais utilizadas durante a validacao e enriquecimento das reviews, incluindo:
 
-* **Manoela Oliveira** — GitHub: https://github.com/Manu11000
-* **Paula Carregal** — GitHub: https://github.com/paulacarregal
-* **Pedro Santiago** — GitHub: https://github.com/pedrosantiago1
-* **Vanessa Fittipaldi** — GitHub: https://github.com/vxnesv
+* identificacao do local;
+* nome;
+* endereco;
+* tags;
+* `profileHints`;
+* `reviewPrompts`;
+* demais metadados estruturados das experiencias.
 
----
+O fluxo atual de review segue a seguinte estrutura:
 
-<p align="center">
-  © 2026 AEON Project.
-</p>
+```text
+Flutter
+    -> POST /reviews/validate
+        -> Spring Boot
+            -> validacao dos dados
+            -> identificacao do local
+            -> consulta ao catalogo AEON
+            -> combinacao de tags
+            -> enriquecimento da review
+        -> resposta validada
+    -> gravacao no Firestore
+```
+
+A implementacao integrada tambem possui uma camada especifica de validacao:
+
+```text
+aeon-backend/src/main/java/com/aeon/backend/service/ReviewValidationService.java
+```
+
+E testes automatizados relacionados ao controller e ao servico:
+
+```text
+aeon-backend/src/test/java/com/aeon/backend/controller/ReviewControllerTest.java
+aeon-backend/src/test/java/com/aeon/backend/service/ReviewValidationServiceTest.java
+```
+
+## **Integracao com o Flutter**
+
+O aplicativo Flutter utiliza uma camada central para comunicacao com o backend Spring Boot.
+
+Principais fluxos:
+
+```text
+Flutter
+    |
+    +--> GET /api/health
+    |
+    +--> POST /weather
+    |
+    +--> POST /reviews/validate
+    |
+    +--> usuarios e perfis profissionais
+```
+
+A URL atualmente configurada para o backend publicado e:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+O backend atua como camada intermediaria para integracoes que nao devem depender diretamente de credenciais externas no aplicativo, como a consulta de clima.
+
+## **Backend Publicado**
+
+O backend Spring Boot esta publicado no Render e possui ambiente de execucao separado da base principal da aplicacao.
+
+Repositorio utilizado para deploy:
+
+```text
+Manu11000/aeon-backend-deploy
+```
+
+Branch de deploy:
+
+```text
+main
+```
+
+O repositorio principal da aplicacao utiliza:
+
+```text
+branch: entrega-aeon
+```
+
+A separacao e:
+
+```text
+Aplicacao AEON
+    |
+    +--> repositorio principal
+         branch entrega-aeon
+
+Backend para deploy
+    |
+    +--> aeon-backend-deploy
+         branch main
+         |
+         +--> Render
+```
+
+## **Seguranca**
+
+Arquivos de credenciais e configuracoes sensiveis nao fazem parte da entrega versionada.
+
+Exemplos:
+
+```text
+google-services.json
+GoogleService-Info.plist
+```
+
+As credenciais utilizadas pelo backend devem ser fornecidas por configuracao segura e variaveis de ambiente no ambiente de execucao.
+
+Arquivos temporarios, backups, diretorios de build e artefatos gerados tambem nao fazem parte da entrega da aplicacao.
+
+## **Estrutura**
+
+```text
+Aeon/
+|-- flutter_application/   # Aplicativo Flutter
+|-- aeon-backend/           # Backend Spring Boot
+|-- aeon-angular/           # Dashboard Angular
+|-- README.md
+```
+
+## **Execucao**
+
+Consulte:
+
+* `flutter_application/EXECUTE.md` para execucao do Flutter, Spring Boot e Angular.
+* `flutter_application/BACKEND.md` para detalhes da API Spring Boot.
+
+## **Validacao da Entrega**
+
+A implementacao atual ja foi utilizada para validar os principais fluxos da arquitetura:
+
+* compilacao do backend Spring Boot com Java 21;
+* execucao do backend local;
+* health check da API;
+* consulta de clima;
+* validacao de reviews;
+* integracao do Flutter com o backend publicado;
+* disponibilizacao da API no Render;
+* documentacao da API via Swagger/OpenAPI;
+* testes automatizados relacionados a validacao de reviews.
+
+O backend publicado foi validado atraves dos endpoints:
+
+```http
+GET  /api/health
+POST /weather
+POST /reviews/validate
+```
+
+## **Desenvolvedores**
+
+* Manoela Oliveira
+* Paula Carregal
+* Pedro Santiago
+* Vanessa Fittipaldi

@@ -1,473 +1,736 @@
-# 🔧 Backend Spring Boot — AEON
+# **Backend Spring Boot - AEON**
 
-O backend do **AEON** foi desenvolvido em **Java com Spring Boot** e é responsável por disponibilizar uma API REST para o gerenciamento e a integração dos dados utilizados pela plataforma.
+## **Objetivo**
 
-A aplicação centraliza operações relacionadas aos usuários e aos perfis profissionais, além de integrar serviços como **Firebase**, **MySQL** e **Swagger/OpenAPI**.
+O backend oficial do AEON e uma API REST desenvolvida em Java com Spring Boot. Ele centraliza as operacoes que precisam passar por servidor, evitando que o aplicativo dependa de backends legados ou chamadas locais.
 
----
+Arquitetura atual:
 
-## 🎯 Objetivo
+```text
+Flutter
+    -> Spring Boot REST API
+        -> Firebase / Firestore / APIs externas
 
-O backend tem como objetivo centralizar o acesso e o gerenciamento dos dados da plataforma AEON.
+Angular
+    -> Spring Boot REST API
+```
 
-Entre suas principais responsabilidades estão:
+O FastAPI usado em uma etapa anterior foi consolidado no Spring Boot e nao e componente atual da solucao.
 
-* Disponibilizar endpoints REST;
-* Gerenciar usuários;
-* Gerenciar perfis profissionais;
-* Executar operações CRUD;
-* Persistir dados;
-* Integrar serviços externos;
-* Validar informações;
-* Tratar erros;
-* Controlar o acesso aos recursos;
-* Disponibilizar documentação interativa da API.
+## **Responsabilidades Atuais**
 
----
+* Disponibilizar endpoints REST para os clientes Flutter e Angular.
+* Consultar usuarios do Firebase Authentication.
+* Gerenciar perfis profissionais no Cloud Firestore.
+* Validar e enriquecer reviews antes da gravacao pelo aplicativo.
+* Consultar dados climaticos via OpenWeather sem expor a chave diretamente ao app.
+* Expor documentacao interativa via Swagger/OpenAPI.
+* Manter uma camada central para evolucao de seguranca e integracoes.
 
-## 🧩 Tecnologias
+## **Tecnologias**
 
-| Tecnologia              | Utilização                             |
-| ----------------------- | -------------------------------------- |
-| Java 17                 | Linguagem principal                    |
-| Spring Boot             | Framework principal                    |
-| Spring MVC              | Desenvolvimento da API REST            |
-| Spring Data JPA         | Persistência de dados                  |
-| Hibernate               | ORM                                    |
-| MySQL                   | Banco de dados                         |
-| Spring Security         | Segurança e controle de acesso         |
-| Firebase Admin SDK      | Integração administrativa com Firebase |
-| Firebase Authentication | Gerenciamento de usuários              |
-| Swagger / OpenAPI       | Documentação da API                    |
-| Maven                   | Gerenciamento de dependências          |
-| Render                  | Hospedagem do backend                  |
+| Tecnologia         | Uso                                     |
+| ------------------ | --------------------------------------- |
+| Java 21            | Linguagem e runtime do backend          |
+| Spring Boot 4      | Framework principal                     |
+| Spring MVC         | Criacao da API REST                     |
+| Spring Security    | Configuracao de seguranca               |
+| Bean Validation    | Validacao de entrada                    |
+| Firebase Admin SDK | Integracao servidor com Firebase        |
+| Cloud Firestore    | Persistencia atual dos dados principais |
+| OpenWeather        | Servico externo de clima                |
+| Swagger/OpenAPI    | Documentacao da API                     |
+| Maven              | Build e dependencias                    |
+| Render             | Hospedagem do backend                   |
 
----
+Observacao: existem dependencias de JPA/H2 no projeto, mas elas nao sao usadas como persistencia ativa do fluxo de Professional Profile. Esse fluxo usa Firestore por meio do Firebase Admin SDK.
 
-## 🏗️ Arquitetura
-
-O backend segue uma organização baseada na separação de responsabilidades entre suas principais camadas:
+## **Arquitetura Interna**
 
 ```text
 Controller
-    │
-    ▼
-Service
-    │
-    ▼
-Repository
-    │
-    ▼
-Database
+    -> Service
+        -> Firebase Admin SDK / Firestore
+        -> Catalogo AEON
+        -> APIs externas
 ```
 
-De forma geral, o fluxo de uma requisição ocorre da seguinte maneira:
+Camadas principais:
 
-1. O **Controller** recebe a requisição HTTP;
-2. O **Service** executa as regras de negócio;
-3. O **Repository** realiza a comunicação com a camada de persistência;
-4. Os dados são armazenados ou consultados no banco de dados.
+* `controller`: recebe requisicoes HTTP e define rotas REST.
+* `service`: concentra regras de negocio e integracoes.
+* `dto`: define contratos de entrada e saida.
+* `config`: concentra configuracoes de Firebase, CORS e seguranca.
+* `exception`: padroniza respostas de erro.
 
-Além disso, o backend integra serviços externos por meio de configurações específicas, como o **Firebase Admin SDK**.
+## **Estrutura do Backend**
 
 ```text
-                    Spring Boot
-                         │
-             ┌───────────┴───────────┐
-             ▼                       ▼
-      Firebase Admin SDK       Spring Data JPA
-             │                       │
-             ▼                       ▼
-         Firebase                   MySQL
+aeon-backend/
+|
+|-- src/
+|   |-- main/
+|   |   |-- java/com/aeon/backend/
+|   |   |   |-- config/
+|   |   |   |-- controller/
+|   |   |   |-- dto/
+|   |   |   |-- exception/
+|   |   |   |-- service/
+|   |   |
+|   |   |-- resources/
+|   |       |-- data/
+|   |           |-- sp_catalog.json
+|   |
+|   |-- test/
+|       |-- java/com/aeon/backend/
+|           |-- controller/
+|           |-- service/
+|
+|-- pom.xml
+|-- mvnw
+|-- mvnw.cmd
+|-- Dockerfile
 ```
 
----
+O arquivo `sp_catalog.json` contem os dados estruturados dos locais utilizados no enriquecimento das reviews.
 
-## 📁 Estrutura do Projeto
+## **Endpoints**
 
-A estrutura principal do backend está organizada da seguinte forma:
+Base local padrao:
 
 ```text
-src/
-└── main/
-    └── java/
-        └── com/
-            └── aeon/
-                └── backend/
-                    ├── config/
-                    ├── controller/
-                    ├── model/
-                    ├── repository/
-                    └── service/
+http://localhost:8080
 ```
 
-### `config`
-
-Contém as configurações necessárias para a inicialização e integração dos serviços utilizados pela aplicação.
-
-Um dos principais componentes é:
-
-```text
-FirebaseConfig.java
-```
-
-Essa classe é responsável pela configuração e inicialização da integração com o Firebase Admin SDK.
-
-### `controller`
-
-Contém os controladores responsáveis pelos endpoints REST da aplicação.
-
-Exemplos:
-
-```text
-UserController.java
-ProfessionalProfileController.java
-```
-
-### `model`
-
-Contém as entidades e modelos utilizados pela aplicação.
-
-Exemplo:
-
-```text
-ProfessionalProfile.java
-```
-
-### `repository`
-
-Responsável pela comunicação com a camada de persistência, utilizando o Spring Data JPA.
-
-### `service`
-
-Concentra as regras de negócio e as operações realizadas sobre os dados.
-
----
-
-## 🔥 Integração com Firebase
-
-O backend utiliza o **Firebase Admin SDK** para integração com os serviços administrativos do Firebase.
-
-A configuração utiliza credenciais disponibilizadas por meio da variável de ambiente:
-
-```text
-GOOGLE_APPLICATION_CREDENTIALS
-```
-
-A inicialização é realizada pela classe:
-
-```text
-FirebaseConfig.java
-```
-
-O Firebase Admin SDK permite que o servidor realize operações administrativas relacionadas aos serviços Firebase sem expor credenciais administrativas aos aplicativos clientes.
-
----
-
-## 👤 Usuários
-
-O backend disponibiliza um endpoint para consulta dos usuários cadastrados no Firebase Authentication.
-
-### Listar usuários
-
-```http
-GET /api/users
-```
-
-Exemplo de resposta:
-
-```json
-[
-  {
-    "uid": "usuario-123",
-    "email": "usuario@email.com",
-    "displayName": "Usuário AEON",
-    "disabled": false
-  }
-]
-```
-
-As informações são obtidas por meio do Firebase Authentication utilizando o Firebase Admin SDK.
-
----
-
-# 💼 Perfis Profissionais
-
-Os perfis profissionais são gerenciados pela API REST e persistidos no banco de dados da aplicação.
-
-Endpoint base:
-
-```text
-/api/professional-profiles
-```
-
-## Listar perfis
-
-```http
-GET /api/professional-profiles
-```
-
-Retorna os perfis profissionais cadastrados.
-
----
-
-## Buscar perfil por ID
-
-```http
-GET /api/professional-profiles/{id}
-```
-
-Exemplo:
-
-```http
-GET /api/professional-profiles/1
-```
-
----
-
-## Criar perfil
-
-```http
-POST /api/professional-profiles
-```
-
-Exemplo de corpo da requisição:
-
-```json
-{
-  "ownerUid": "usuario-123",
-  "type": "Profissional",
-  "displayName": "Ana Silva",
-  "category": "Psicologia",
-  "document": "123456789",
-  "description": "Atendimento psicológico.",
-  "phone": "(71) 99999-9999",
-  "website": "",
-  "instagram": "@anasilva",
-  "city": "Salvador",
-  "address": "Rua Exemplo, 100",
-  "status": "pending"
-}
-```
-
----
-
-## Atualizar perfil
-
-```http
-PUT /api/professional-profiles/{id}
-```
-
-Exemplo:
-
-```http
-PUT /api/professional-profiles/1
-```
-
----
-
-## Excluir perfil
-
-```http
-DELETE /api/professional-profiles/{id}
-```
-
-Exemplo:
-
-```http
-DELETE /api/professional-profiles/1
-```
-
----
-
-## 🗃️ Modelo `ProfessionalProfile`
-
-A entidade `ProfessionalProfile` possui os seguintes campos:
-
-| Campo         | Descrição                     |
-| ------------- | ----------------------------- |
-| `id`          | Identificador do perfil       |
-| `ownerUid`    | UID do usuário responsável    |
-| `type`        | Tipo do perfil                |
-| `displayName` | Nome apresentado              |
-| `category`    | Categoria profissional        |
-| `document`    | Documento ou registro         |
-| `description` | Descrição profissional        |
-| `phone`       | Telefone                      |
-| `website`     | Site                          |
-| `instagram`   | Perfil do Instagram           |
-| `city`        | Cidade                        |
-| `address`     | Endereço                      |
-| `status`      | Status da verificação         |
-| `active`      | Indica se o perfil está ativo |
-
----
-
-## 🔄 Operações CRUD
-
-A API disponibiliza as operações básicas de gerenciamento dos perfis profissionais:
-
-| Operação      | Método   | Endpoint                          |
-| ------------- | -------- | --------------------------------- |
-| Criar         | `POST`   | `/api/professional-profiles`      |
-| Listar        | `GET`    | `/api/professional-profiles`      |
-| Buscar por ID | `GET`    | `/api/professional-profiles/{id}` |
-| Atualizar     | `PUT`    | `/api/professional-profiles/{id}` |
-| Excluir       | `DELETE` | `/api/professional-profiles/{id}` |
-
-Essas operações podem ser utilizadas pelos clientes da API para consultar e gerenciar os dados dos perfis profissionais.
-
----
-
-## 🔒 Segurança
-
-A aplicação utiliza **Spring Security** como camada de segurança do backend.
-
-A estrutura do projeto foi preparada para controlar o acesso aos recursos da API e possibilitar a integração com mecanismos de autenticação e autorização.
-
-O Firebase Admin SDK é utilizado exclusivamente no ambiente do servidor para operações administrativas relacionadas ao Firebase.
-
----
-
-## ⚠️ Tratamento de Erros
-
-A API possui tratamento de exceções para evitar a exposição direta de informações internas do sistema.
-
-Quando ocorre uma falha durante uma operação, o backend pode retornar uma resposta estruturada ao cliente.
-
-Exemplo:
-
-```json
-{
-  "error": "Erro ao consultar usuários do Firebase."
-}
-```
-
-Essa abordagem facilita a identificação de problemas pelos consumidores da API.
-
----
-
-## 📚 Swagger / OpenAPI
-
-A API possui documentação interativa utilizando **Swagger/OpenAPI**.
-
-Após iniciar o backend, a documentação pode ser acessada pelo endereço:
-
-```text
-/swagger-ui/index.html
-```
-
-No ambiente publicado:
-
-```text
-https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
-```
-
-O Swagger permite:
-
-* Visualizar os endpoints disponíveis;
-* Consultar os métodos HTTP;
-* Visualizar parâmetros;
-* Consultar estruturas de requisição e resposta;
-* Executar requisições diretamente pela interface.
-
----
-
-## ☁️ Ambiente Publicado
-
-O backend está hospedado no **Render**.
-
-### API
+Base publicada:
 
 ```text
 https://aeon-backend-deploy.onrender.com
 ```
 
-### Endpoints disponíveis
+## **Health**
 
-```text
+```http
+GET /api/health
+```
+
+Retorna o estado basico da API.
+
+Exemplo:
+
+```json
+{
+  "status": "UP",
+  "service": "AEON Backend",
+  "version": "1.0.0"
+}
+```
+
+Teste local:
+
+```powershell
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/api/health" `
+    -Method GET
+```
+
+Teste publicado:
+
+```powershell
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/api/health" `
+    -Method GET
+```
+
+## **Usuarios**
+
+```http
 GET /api/users
 ```
 
-```text
-GET /api/professional-profiles
+Consulta usuarios cadastrados no Firebase Authentication.
+
+Esse endpoint depende da configuracao do Firebase Admin SDK no ambiente do backend.
+
+## **Perfis Profissionais**
+
+```http
+GET    /api/professional-profiles
+GET    /api/professional-profiles/{id}
+POST   /api/professional-profiles
+PUT    /api/professional-profiles/{id}
+DELETE /api/professional-profiles/{id}
 ```
 
-O serviço publicado permite que diferentes aplicações e ambientes da equipe consumam a mesma API.
+Os perfis profissionais representam contas de estabelecimentos, marcas ou criadores associados ao AEON. A persistencia atual desse fluxo e no Cloud Firestore.
 
-> **Observação:** dependendo da configuração do ambiente de hospedagem, a primeira requisição após um período de inatividade pode apresentar um tempo maior de resposta.
+## **Clima**
 
----
+```http
+POST /weather
+```
 
-## ▶️ Execução Local
+Payload:
 
-Acesse o diretório do backend:
+```json
+{
+  "city": "Sao Paulo"
+}
+```
 
-```bash
+Resposta:
+
+```json
+{
+  "temperature": 22.5,
+  "humidity": 70,
+  "windSpeed": 3.2,
+  "description": "ceu limpo"
+}
+```
+
+Teste local:
+
+```powershell
+$body = @{
+    city = "Sao Paulo"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/weather" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+Teste publicado:
+
+```powershell
+$body = @{
+    city = "Sao Paulo"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "https://aeon-backend-deploy.onrender.com/weather" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+O backend centraliza essa chamada para o OpenWeather, evitando expor diretamente a chave da API externa no aplicativo Flutter.
+
+## **Validacao de Reviews**
+
+O fluxo de reviews recebe os dados enviados pelo Flutter, valida os campos, identifica o local e utiliza os metadados do catalogo AEON para enriquecer a resposta.
+
+Endpoints:
+
+```http
+POST /reviews/validate
+POST /reviews/validate-and-enrich
+```
+
+O endpoint e consumido pelo Flutter antes da review ser gravada no Firestore pelo app.
+
+Payload:
+
+```json
+{
+  "userId": "uid-do-usuario",
+  "placeId": "bar-tan-tan",
+  "placeName": "Bar Tan Tan",
+  "address": "Rua informada",
+  "rating": 5,
+  "comment": "Experiencia muito boa",
+  "tags": ["ambiente", "drinks"],
+  "spendRange": "50+"
+}
+```
+
+Resposta:
+
+```json
+{
+  "userId": "uid-do-usuario",
+  "placeId": "bar-tan-tan",
+  "placeName": "Bar Tan Tan",
+  "address": "Rua Fradique Coutinho, 153 - Pinheiros",
+  "rating": 5,
+  "comment": "Experiencia muito boa",
+  "tags": [
+    "ambiente",
+    "drinks",
+    "indoor",
+    "night",
+    "premium",
+    "social",
+    "urban"
+  ],
+  "spendRange": "50+",
+  "profileHints": [
+    "Pioneiro Urbano",
+    "Explorador Social"
+  ],
+  "reviewPrompts": [
+    "drinks",
+    "ambiente",
+    "musica",
+    "fila",
+    "preco"
+  ],
+  "source": "aeon-spring",
+  "status": "validated"
+}
+```
+
+### **Catalogo utilizado na validacao**
+
+O catalogo esta localizado em:
+
+```text
+src/main/resources/data/sp_catalog.json
+```
+
+Ele contem informacoes estruturadas dos locais, como:
+
+* `id`;
+* `name`;
+* `address`;
+* `tags`;
+* `profileHints`;
+* `reviewPrompts`;
+* demais metadados utilizados pela experiencia AEON.
+
+Fluxo:
+
+```text
+Flutter
+    |
+    | POST /reviews/validate
+    v
+Spring Boot
+    |
+    +--> valida payload
+    |
+    +--> identifica local
+    |
+    +--> consulta sp_catalog.json
+    |
+    +--> combina tags
+    |
+    +--> adiciona profileHints
+    |
+    +--> adiciona reviewPrompts
+    |
+    v
+ReviewValidationResponse
+    |
+    v
+Flutter
+    |
+    +--> grava resultado no Firestore
+```
+
+### **Camadas de validacao**
+
+A implementacao atual possui a camada:
+
+```text
+src/main/java/com/aeon/backend/service/ReviewService.java
+```
+
+Tambem foi incorporado o servico:
+
+```text
+src/main/java/com/aeon/backend/service/ReviewValidationService.java
+```
+
+A entrega inclui testes automatizados associados ao novo fluxo:
+
+```text
+src/test/java/com/aeon/backend/controller/ReviewControllerTest.java
+
+src/test/java/com/aeon/backend/service/ReviewValidationServiceTest.java
+```
+
+## **Firebase**
+
+O backend usa Firebase Admin SDK. A credencial administrativa deve ser configurada no ambiente do servidor por meio de:
+
+```text
+GOOGLE_APPLICATION_CREDENTIALS
+```
+
+O aplicativo Flutter continua usando Firebase Authentication para login. O backend usa o Firebase Admin SDK para operacoes do lado servidor.
+
+### **Configuracao local**
+
+A credencial administrativa nao deve ser adicionada ao Git.
+
+Para executar localmente, configure a variavel de ambiente apontando para uma credencial Firebase valida.
+
+Exemplo no PowerShell:
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\caminho\seguro\firebase-service-account.json"
+```
+
+Depois execute o backend no mesmo terminal.
+
+No ambiente publicado, a credencial deve ser configurada de forma segura no ambiente do servidor.
+
+## **Swagger**
+
+Documentacao publicada:
+
+```text
+https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
+```
+
+Quando o backend estiver rodando localmente:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+O Swagger permite visualizar os endpoints e testar as requisicoes da API.
+
+## **Execucao Local**
+
+### **Pre-requisitos**
+
+Antes de executar o backend, verificar:
+
+```powershell
+java -version
+```
+
+A versao esperada e Java 21.
+
+Tambem e necessario ter o projeto clonado e acessar a pasta do backend:
+
+```powershell
 cd aeon-backend
 ```
 
-### Utilizando Maven
+### **Opcao 1 — Maven instalado**
 
-```bash
+Se o Maven estiver instalado:
+
+```powershell
 mvn spring-boot:run
 ```
 
-### Utilizando Maven Wrapper
+### **Opcao 2 — Maven Wrapper**
 
-No Windows:
+A opcao recomendada para garantir o Maven utilizado pelo projeto e:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-No Linux ou macOS:
-
-```bash
-./mvnw spring-boot:run
-```
-
-Após a inicialização, a API estará disponível na porta configurada no projeto.
-
----
-
-## 🔗 Fluxo de Integração
-
-O backend funciona como uma camada central de comunicação entre os clientes da plataforma e os serviços utilizados pela aplicação.
+Quando o servidor iniciar, a API ficara disponivel em:
 
 ```text
-       ┌──────────────────────┐
-       │  Clientes da AEON    │
-       │                      │
-       │ Flutter / Angular    │
-       └──────────┬───────────┘
-                  │
-                  │ HTTP / REST
-                  ▼
-       ┌──────────────────────┐
-       │   Spring Boot API    │
-       │                      │
-       │ Controllers          │
-       │ Services             │
-       │ Security             │
-       └──────────┬───────────┘
-                  │
-         ┌────────┴────────┐
-         ▼                 ▼
-  ┌─────────────┐   ┌─────────────┐
-  │    MySQL    │   │   Firebase  │
-  │             │   │             │
-  │ Perfis e    │   │ Usuários e  │
-  │ dados       │   │ serviços    │
-  └─────────────┘   └─────────────┘
+http://localhost:8080
 ```
 
----
+### **Parar o backend**
 
-## 📌 Considerações Finais
+No terminal onde o Spring Boot estiver executando:
 
-O backend Spring Boot fornece uma camada centralizada para o gerenciamento e disponibilização dos dados da plataforma AEON.
+```text
+Ctrl + C
+```
 
-A utilização de **Spring Boot**, **Spring Security**, **Spring Data JPA**, **MySQL** e **Firebase** permite estruturar uma API organizada e preparada para evolução.
+## **Compilacao**
 
-A documentação por meio do **Swagger/OpenAPI** facilita a consulta e o teste dos endpoints disponíveis, enquanto a publicação do serviço em nuvem permite a integração entre os diferentes componentes do projeto.
+Para gerar o pacote do backend:
+
+```powershell
+.\mvnw.cmd clean package -DskipTests
+```
+
+O resultado sera gerado em:
+
+```text
+target/aeon-backend-0.0.1-SNAPSHOT.jar
+```
+
+Para executar o pacote gerado:
+
+```powershell
+java -jar target/aeon-backend-0.0.1-SNAPSHOT.jar
+```
+
+## **Testes Automatizados**
+
+Para executar todos os testes:
+
+```powershell
+.\mvnw.cmd clean test
+```
+
+Os testes relacionados a validacao de reviews ficam em:
+
+```text
+src/test/java/com/aeon/backend/controller/ReviewControllerTest.java
+src/test/java/com/aeon/backend/service/ReviewValidationServiceTest.java
+```
+
+O objetivo desses testes e validar o comportamento das camadas de controller e servico relacionadas ao fluxo de reviews.
+
+## **Validacao Manual da API**
+
+Depois de iniciar o backend localmente, recomenda-se validar nesta ordem:
+
+### 1. Health
+
+```powershell
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/api/health" `
+    -Method GET
+```
+
+### 2. Clima
+
+```powershell
+$body = '{"city":"Sao Paulo"}'
+
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/weather" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+### 3. Review
+
+```powershell
+$body = @{
+    userId     = "teste-flutter"
+    placeId    = "bar-tan-tan"
+    placeName  = "Bar Tan Tan"
+    address    = "Rua Fradique Coutinho, 153 - Pinheiros"
+    rating     = 5
+    comment    = "Experiencia muito boa"
+    tags       = @("ambiente", "drinks")
+    spendRange = "50+"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "http://localhost:8080/reviews/validate" `
+    -Method POST `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $body
+```
+
+A resposta esperada deve apresentar o status de validacao e os dados enriquecidos pelo catalogo AEON.
+
+## **Backend Publicado**
+
+O backend utilizado pela aplicacao esta publicado em:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+Principais verificacoes:
+
+```text
+GET  /api/health
+POST /weather
+POST /reviews/validate
+```
+
+O servico publicado foi utilizado para validar os fluxos principais da API.
+
+O Render pode apresentar um pequeno tempo de inicializacao quando o servico retorna de um periodo de inatividade.
+
+## **Deploy**
+
+O backend de deploy possui um repositorio separado do repositorio principal da aplicacao.
+
+Repositorio de deploy:
+
+```text
+Manu11000/aeon-backend-deploy
+```
+
+Branch utilizada para o deploy:
+
+```text
+main
+```
+
+A aplicacao completa permanece no repositorio principal do AEON, na branch:
+
+```text
+entrega-aeon
+```
+
+Estrutura:
+
+```text
+Repositorio principal
+    |
+    +--> Flutter
+    +--> Angular
+    +--> Spring Boot
+         |
+         +--> branch entrega-aeon
+
+Repositorio de deploy
+    |
+    +--> aeon-backend-deploy
+         |
+         +--> main
+              |
+              +--> Render
+```
+
+Essa separacao permite manter o backend utilizado pelo Render em um repositorio especifico sem alterar a organizacao do repositorio principal da aplicacao.
+
+## **Docker**
+
+O backend possui `Dockerfile` para execucao em ambiente de deploy.
+
+O processo utiliza:
+
+```text
+Java 21
+    ->
+Maven Wrapper
+    ->
+Spring Boot
+    ->
+aeon-backend-0.0.1-SNAPSHOT.jar
+```
+
+O container utiliza a porta definida pela variavel `PORT`, com fallback para `8080` em ambiente local.
+
+## **Integracao com Flutter**
+
+O Flutter utiliza o backend publicado como API principal para os fluxos que dependem do servidor.
+
+Configuracao atual:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+Principais integracoes:
+
+```text
+Flutter
+    |
+    +--> GET /api/health
+    |
+    +--> POST /weather
+    |
+    +--> POST /reviews/validate
+    |
+    +--> usuarios
+    |
+    +--> perfis profissionais
+```
+
+No fluxo de reviews:
+
+```text
+Flutter
+    |
+    +--> envia review
+    |
+    v
+Spring Boot
+    |
+    +--> valida
+    +--> enriquece
+    |
+    v
+Flutter
+    |
+    +--> grava resultado no Firestore
+```
+
+## **Integracao com Angular**
+
+O dashboard Angular utiliza a mesma API Spring Boot para os recursos administrativos disponibilizados pelo backend.
+
+Fluxo:
+
+```text
+Angular Dashboard
+    |
+    v
+Spring Boot REST API
+    |
+    +--> Firebase Authentication
+    +--> Cloud Firestore
+```
+
+A base publicada utilizada pelo dashboard e:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+## **Ordem Recomendada para Executar o Projeto**
+
+Para executar a solucao completa localmente:
+
+### **1. Backend**
+
+```powershell
+cd aeon-backend
+.\mvnw.cmd spring-boot:run
+```
+
+Verificar:
+
+```text
+http://localhost:8080/api/health
+```
+
+### **2. Angular**
+
+Em outro terminal:
+
+```powershell
+cd aeon-angular
+npm install
+ng serve
+```
+
+Acessar:
+
+```text
+http://localhost:4200
+```
+
+### **3. Flutter**
+
+Em outro terminal:
+
+```powershell
+cd flutter_application
+flutter pub get
+flutter run
+```
+
+O Flutter esta configurado para utilizar o backend publicado, salvo quando houver configuracao especifica de ambiente para executar contra o backend local.
+
+## **Observacoes Importantes**
+
+* O backend oficial atual e Spring Boot.
+* O FastAPI legado nao deve ser iniciado para executar a arquitetura atual.
+* O backend utiliza Java 21.
+* O Flutter utiliza o backend Spring Boot para clima e validacao de reviews.
+* O catalogo `sp_catalog.json` faz parte do backend e e utilizado no enriquecimento das reviews.
+* Credenciais Firebase nao devem ser versionadas.
+* O backend local utiliza a porta `8080` por padrao.
+* O Render utiliza a porta fornecida pela variavel de ambiente `PORT`.
+* O backend publicado pode apresentar demora na primeira requisicao apos inatividade.
+* O Swagger pode ser utilizado para inspecionar e testar a API.
+* Alteracoes destinadas ao ambiente de deploy devem respeitar a separacao entre o repositorio principal e o repositorio `aeon-backend-deploy`.
