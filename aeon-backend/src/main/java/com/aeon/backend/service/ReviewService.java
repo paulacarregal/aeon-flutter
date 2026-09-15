@@ -4,7 +4,7 @@ import com.aeon.backend.dto.ReviewValidationRequest;
 import com.aeon.backend.dto.ReviewValidationResponse;
 import org.springframework.stereotype.Service;
 
-import java.text.Normalizer;
+//import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;

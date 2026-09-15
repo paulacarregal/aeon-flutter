@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../domain/place.dart';
 import '../../../shared/routes/route_names.dart';
@@ -6,13 +6,19 @@ import '../../../shared/theme/colors.dart';
 
 class PlaceCard extends StatelessWidget {
   final Place place;
+  final VoidCallback? onRoute;
 
-  const PlaceCard({super.key, required this.place});
+  const PlaceCard({
+    super.key,
+    required this.place,
+    this.onRoute,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, RouteNames.postDetail),
+      onTap: onRoute ??
+          () => Navigator.pushNamed(context, RouteNames.postDetail),
       child: Container(
         width: 246,
         margin: const EdgeInsets.only(right: 36),

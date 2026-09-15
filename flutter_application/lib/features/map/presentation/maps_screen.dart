@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -11,6 +11,10 @@ import './map_search_bar.dart';
 import './place_card.dart';
 import './place_provider.dart';
 import '../domain/place.dart';
+import '../domain/route_coordinate.dart';
+import '../domain/route_request.dart';
+import '../domain/route_result.dart';
+import 'package:flutter_application/features/map/services/route_service.dart';
 import '../../alerts/presentation/alert_provider.dart';
 import '../../recommendations/presentation/ai_recommendation_provider.dart';
 import '../../weather/presentation/weather_provider.dart';
@@ -29,10 +33,16 @@ class _MapsScreenState extends State<MapsScreen> {
   final _mapController = MapController();
   final _searchController = TextEditingController();
   final _locationService = LocationService();
+  final _routeService = RouteService();
 
   String? _aiCardBody;
   LatLng? _currentPosition;
   Place? _routeDestination;
+  List<LatLng> _routePoints = const [];
+  double? _routeDistanceMeters;
+  double? _routeDurationSeconds;
+  bool _routeLoading = false;
+  String? _routeError;
   bool _locationLoading = true;
   double _maxDistanceKm = 8;
   Map<String, double> _preferenceWeights = const {};
@@ -53,7 +63,7 @@ class _MapsScreenState extends State<MapsScreen> {
     super.dispose();
   }
 
-  Future<void> _loadCurrentPosition() async {
+  Future<void> _loadCurrentPosition() async { print('===== LOAD CURRENT POSITION CHAMADO ====='); print('===== LOAD CURRENT POSITION CHAMADO =====');
     final position = await _locationService.getCurrentPosition();
     if (!mounted) return;
 
@@ -138,17 +148,8 @@ class _MapsScreenState extends State<MapsScreen> {
       _aiCardBody = result.body;
       _routeDestination = result.place;
     });
-    if (_currentPosition != null) {
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: LatLngBounds.fromPoints([
-            _currentPosition!,
-            LatLng(result.place.latitude, result.place.longitude),
-          ]),
-          padding: const EdgeInsets.fromLTRB(54, 130, 54, 260),
-        ),
-      );
-    }
+
+    await _calculateRoute();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(result.body)),
     );
@@ -177,24 +178,18 @@ class _MapsScreenState extends State<MapsScreen> {
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'br.com.aeon.app',
               ),
-              if (_currentPosition != null && _routeDestination != null)
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: [
-                        _currentPosition!,
-                        LatLng(
-                          _routeDestination!.latitude,
-                          _routeDestination!.longitude,
-                        ),
-                      ],
-                      color: AppColors.purpleAeon,
-                      strokeWidth: 5,
-                      borderColor: AppColors.yellowAeon,
-                      borderStrokeWidth: 2,
-                    ),
-                  ],
-                ),
+            if (_routePoints.isNotEmpty)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: _routePoints,
+                    color: AppColors.purpleAeon,
+                    strokeWidth: 5,
+                    borderColor: AppColors.yellowAeon,
+                    borderStrokeWidth: 2,
+                  ),
+                ],
+              ),
               MarkerLayer(
                 markers: places.map((place) {
                   return Marker(
@@ -209,6 +204,26 @@ class _MapsScreenState extends State<MapsScreen> {
                   );
                 }).toList(),
               ),
+                            if (_routeDestination != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(
+                        _routeDestination!.latitude,
+                        _routeDestination!.longitude,
+                      ),
+                      width: 46,
+                      height: 46,
+                      child: const Icon(
+                        Icons.flag,
+                        color: AppColors.yellowAeon,
+                        size: 36,
+                      ),
+                    ),
+                  ],
+                ),
+
+
               if (_currentPosition != null)
                 MarkerLayer(
                   markers: [
@@ -330,7 +345,11 @@ class _MapsScreenState extends State<MapsScreen> {
                           ),
                         ),
                       ),
-                    _PlaceSection(title: 'Para Explorar', places: places),
+                    _PlaceSection(
+                      title: 'Para Explorar',
+                      places: places,
+                      onRoute: _selectPlaceForRoute,
+                    ),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -342,6 +361,88 @@ class _MapsScreenState extends State<MapsScreen> {
     );
   }
 
+  Future<void> _selectPlaceForRoute(Place place) async {
+    setState(() {
+      _aiCardBody = null;
+      _routeDestination = place;
+    });
+
+    await _calculateRoute();
+  }
+
+  Future<void> _calculateRoute() async {
+    final origin = _currentPosition;
+    final destination = _routeDestination;
+
+    if (origin == null || destination == null) {
+      return;
+    }
+
+    setState(() {
+      _routeLoading = true;
+      _routeError = null;
+      _routePoints = const [];
+      _routeDistanceMeters = null;
+      _routeDurationSeconds = null;
+    });
+
+    try {
+      final request = RouteRequest(
+        origin: RouteCoordinate(
+          latitude: origin.latitude,
+          longitude: origin.longitude,
+        ),
+        destination: RouteCoordinate(
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+        ),
+      );
+
+      final RouteResult result = await _routeService.calculateRoute(request);
+
+      if (!mounted) return;
+
+      final points = result.points
+          .map(
+            (point) => LatLng(
+              point.latitude,
+              point.longitude,
+            ),
+          )
+          .toList();
+
+      setState(() {
+        _routePoints = points;
+        _routeDistanceMeters = result.distanceMeters;
+        _routeDurationSeconds = result.durationSeconds;
+        _routeLoading = false;
+      });
+
+      if (points.isNotEmpty) {
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: LatLngBounds.fromPoints(points),
+            padding: const EdgeInsets.fromLTRB(54, 130, 54, 260),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _routeLoading = false;
+        _routeError = e.toString();
+        _routePoints = const [];
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nao foi possivel calcular a rota.'),
+        ),
+      );
+    }
+  }
+
   String? _distanceToDestination() {
     final meters = _distanceMetersToDestination();
     if (meters == null) return null;
@@ -351,8 +452,13 @@ class _MapsScreenState extends State<MapsScreen> {
   }
 
   double? _distanceMetersToDestination() {
+    if (_routeDistanceMeters != null) {
+      return _routeDistanceMeters;
+    }
+
     final origin = _currentPosition;
     final destination = _routeDestination;
+
     if (origin == null || destination == null) return null;
 
     return const Distance().as(
@@ -375,6 +481,9 @@ class _MapsScreenState extends State<MapsScreen> {
         return _RouteOptionsSheet(
           place: destination,
           distanceMeters: meters,
+          routeDurationSeconds: _routeDurationSeconds,
+          routeLoading: _routeLoading,
+          routeError: _routeError,
           onOpenUber: () => _openRideApp('uber'),
           onOpenNinetyNine: () => _openRideApp('99'),
           onClearRoute: () {
@@ -648,6 +757,9 @@ class _AiNotificationCard extends StatelessWidget {
 class _RouteOptionsSheet extends StatelessWidget {
   final Place place;
   final double distanceMeters;
+  final double? routeDurationSeconds;
+  final bool routeLoading;
+  final String? routeError;
   final VoidCallback onOpenUber;
   final VoidCallback onOpenNinetyNine;
   final VoidCallback onClearRoute;
@@ -655,6 +767,9 @@ class _RouteOptionsSheet extends StatelessWidget {
   const _RouteOptionsSheet({
     required this.place,
     required this.distanceMeters,
+    required this.routeDurationSeconds,
+    required this.routeLoading,
+    required this.routeError,
     required this.onOpenUber,
     required this.onOpenNinetyNine,
     required this.onClearRoute,
@@ -663,7 +778,8 @@ class _RouteOptionsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final distanceKm = distanceMeters / 1000;
-    final carMinutes = _minutes(distanceKm, 26, extraMinutes: 4);
+    final routeMinutes = routeDurationSeconds == null ? null : (routeDurationSeconds! / 60).ceil();
+    final carMinutes = routeMinutes ?? _minutes(distanceKm, 26, extraMinutes: 4);
     final transitMinutes = _minutes(distanceKm, 18, extraMinutes: 10);
     final walkMinutes = _minutes(distanceKm, 4.7);
     final rideMinutes = _minutes(distanceKm, 24, extraMinutes: 5);
@@ -707,6 +823,32 @@ class _RouteOptionsSheet extends StatelessWidget {
               style: const TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 18),
+            if (routeLoading)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 14),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      'Calculando rota...',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                  ],
+                ),
+              )
+            else if (routeError != null)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 14),
+                child: Text(
+                  'Nao foi possivel calcular a rota.',
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
             _RouteModeTile(
               icon: Icons.directions_car_filled_outlined,
               title: 'Carro',
@@ -908,8 +1050,13 @@ class _ExploreHeader extends StatelessWidget {
 class _PlaceSection extends StatelessWidget {
   final String title;
   final List places;
+  final void Function(Place) onRoute;
 
-  const _PlaceSection({required this.title, required this.places});
+  const _PlaceSection({
+    required this.title,
+    required this.places,
+    required this.onRoute,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -934,10 +1081,17 @@ class _PlaceSection extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: places.length,
             padding: const EdgeInsets.only(left: 24, right: 8),
-            itemBuilder: (_, index) => PlaceCard(place: places[index]),
+            itemBuilder: (_, index) => PlaceCard(
+              place: places[index],
+              onRoute: () => onRoute(places[index]),
+            ),
           ),
         ),
       ],
     );
   }
 }
+
+
+
+
