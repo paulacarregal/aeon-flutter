@@ -1,14 +1,13 @@
 {
   "project_info": {
-    "project_number": "15496712239",
-    "firebase_url": "https://aeon-1bdd5-default-rtdb.firebaseio.com",
-    "project_id": "aeon-1bdd5",
-    "storage_bucket": "aeon-1bdd5.firebasestorage.app"
+    "project_number": "823551626955",
+    "project_id": "aeon-c06ea",
+    "storage_bucket": "aeon-c06ea.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:15496712239:android:1447a7f242e17c7cd6b6da",
+        "mobilesdk_app_id": "1:823551626955:android:aa4b4121fb55e4ebccd54e",
         "android_client_info": {
           "package_name": "br.com.aeon.app"
         }
@@ -16,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBNVGKv4y-68NCnBPqnixkZCqRIKP2Y8B8"
+          "current_key": "AIzaSyA4iVUqa7t6ntWOA_CYO_0tiaqnTbHYk54"
         }
       ],
       "services": {

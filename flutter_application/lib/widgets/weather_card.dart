@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/weather.dart';
-import '../services/weather_service.dart';
+import '../features/weather/domain/weather.dart';
+import '../features/weather/data/weather_service.dart';
 
 class WeatherCard extends StatelessWidget {
   const WeatherCard({super.key});

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -25,62 +26,42 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        return web;
       case TargetPlatform.windows:
-        return windows;
+        return web;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return web;
       default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
+        return web;
     }
   }
 
+
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyApQXbAIttiEGmobZWrkrOfNllOlUvVS84',
-    appId: '1:15496712239:web:33cd9247cc4a295ad6b6da',
-    messagingSenderId: '15496712239',
-    projectId: 'aeon-1bdd5',
-    authDomain: 'aeon-1bdd5.firebaseapp.com',
-    storageBucket: 'aeon-1bdd5.firebasestorage.app',
+    apiKey: 'AIzaSyByxNSBw3W__fmZM97ucKa95JVsTQcWQHI',
+    appId: '1:823551626955:web:3efbe87a6efb6d10ccd54e',
+    messagingSenderId: '823551626955',
+    projectId: 'aeon-c06ea',
+    authDomain: 'aeon-c06ea.firebaseapp.comq',
+    storageBucket: 'aeon-c06ea.firebasestorage.app',
+    measurementId: 'G-YQG49GVP1Y',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBNVGKv4y-68NCnBPqnixkZCqRIKP2Y8B8',
-    appId: '1:15496712239:android:1447a7f242e17c7cd6b6da',
-    messagingSenderId: '15496712239',
-    projectId: 'aeon-1bdd5',
-    storageBucket: 'aeon-1bdd5.firebasestorage.app',
+  apiKey: 'AIzaSyA4iVUqa7t6ntWOA_CYO_0tiaqnTbHYk54',
+  appId: '1:823551626955:android:aa4b4121fb55e4ebccd54e',
+  messagingSenderId: '823551626955',
+  projectId: 'aeon-c06ea"',
+  storageBucket: 'aeon-c06ea.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB_0-vCV883le8jqxUp5GpVGe-X6bu5zJ0',
-    appId: '1:15496712239:ios:948e3ed493067e31d6b6da',
-    messagingSenderId: '15496712239',
-    projectId: 'aeon-1bdd5',
-    storageBucket: 'aeon-1bdd5.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApplication',
+    apiKey: 'AIzaSyCLtYeKbccUXdkxKOjpxyPnW_21R1QKLOk',
+    appId: '1:823551626955:ios:c1122425bb5b1d62ccd54e',
+    messagingSenderId: '823551626955',
+    projectId: 'aeon-c06ea',
+    storageBucket: 'aeon-c06ea.firebasestorage.app',
+    iosBundleId: 'br.com.aeon.app',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB_0-vCV883le8jqxUp5GpVGe-X6bu5zJ0',
-    appId: '1:15496712239:ios:948e3ed493067e31d6b6da',
-    messagingSenderId: '15496712239',
-    projectId: 'aeon-1bdd5',
-    storageBucket: 'aeon-1bdd5.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApplication',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyApQXbAIttiEGmobZWrkrOfNllOlUvVS84',
-    appId: '1:15496712239:web:a047bd8f2897d8f7d6b6da',
-    messagingSenderId: '15496712239',
-    projectId: 'aeon-1bdd5',
-    authDomain: 'aeon-1bdd5.firebaseapp.com',
-    storageBucket: 'aeon-1bdd5.firebasestorage.app',
-  );
 }

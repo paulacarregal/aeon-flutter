@@ -1,0 +1,305 @@
+﻿<div class="users-page">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">GERENCIAMENTO</p>
+
+      <h1>Usuários</h1>
+
+      <p class="page-description">
+        Gerencie os usuários cadastrados na plataforma AEON.
+      </p>
+    </div>
+
+    <button class="primary-button">
+      <span>+</span>
+      Novo usuário
+    </button>
+  </div>
+
+
+  <!-- MÉTRICAS -->
+
+  <section class="metrics">
+
+    <article class="metric-card">
+
+      <div class="metric-icon users-icon">
+        👤
+      </div>
+
+      <div>
+        <span>Total de usuários</span>
+
+        <strong>
+          {{ users.length }}
+        </strong>
+
+        <small>Dados do Firebase</small>
+      </div>
+
+    </article>
+
+
+    <article class="metric-card">
+
+      <div class="metric-icon active-icon">
+        ✓
+      </div>
+
+      <div>
+        <span>Usuários ativos</span>
+
+        <strong>
+          {{ activeUsers }}
+        </strong>
+
+        <small>
+          {{ users.length ? ((activeUsers / users.length) * 100).toFixed(0) : 0 }}% da base
+        </small>
+      </div>
+
+    </article>
+
+
+    <article class="metric-card">
+
+      <div class="metric-icon new-icon">
+        +
+      </div>
+
+      <div>
+        <span>Novos usuários</span>
+
+        <strong>—</strong>
+
+        <small>
+          Informação não disponível
+        </small>
+      </div>
+
+    </article>
+
+
+    <article class="metric-card">
+
+      <div class="metric-icon pending-icon">
+        !
+      </div>
+
+      <div>
+        <span>Desativados</span>
+
+        <strong>
+          {{ disabledUsers }}
+        </strong>
+
+        <small>
+          Contas desativadas
+        </small>
+      </div>
+
+    </article>
+
+  </section>
+
+
+  <!-- LISTA -->
+
+  <section class="users-panel">
+
+    <div class="panel-header">
+
+      <div>
+        <span class="eyebrow">USUÁRIOS</span>
+
+        <h2>Lista de usuários</h2>
+      </div>
+
+    </div>
+
+
+    <!-- TOOLBAR -->
+
+    <div class="toolbar">
+
+      <div class="search-box">
+
+        <span>⌕</span>
+
+        <input
+          type="text"
+          placeholder="Buscar usuário..."
+        />
+
+      </div>
+
+
+      <select>
+
+        <option>Todos os status</option>
+
+        <option>Ativo</option>
+
+        <option>Desativado</option>
+
+      </select>
+
+    </div>
+
+
+    <!-- CARREGANDO -->
+
+    <div
+      *ngIf="loading"
+      class="loading-state"
+    >
+      Carregando usuários...
+    </div>
+
+
+    <!-- ERRO -->
+
+    <div
+      *ngIf="!loading && error"
+      class="error-state"
+    >
+      {{ error }}
+    </div>
+
+
+    <!-- TABELA -->
+
+    <div
+      class="table-container"
+      *ngIf="!loading && !error"
+    >
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Usuário</th>
+
+            <th>E-mail</th>
+
+            <th>Status</th>
+
+            <th>UID</th>
+
+            <th>Ações</th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr *ngFor="let user of users">
+
+            <td>
+
+              <div class="user-cell">
+
+                <div class="user-avatar">
+                  {{ getInitials(user.displayName) }}
+                </div>
+
+                <div>
+
+                  <strong>
+                    {{ user.displayName || 'Sem nome' }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <td>
+              {{ user.email }}
+            </td>
+
+
+            <td>
+
+              <span
+                class="status"
+                [class.active]="!user.disabled"
+                [class.blocked]="user.disabled"
+              >
+
+                {{ getStatus(user) }}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span class="uid">
+                {{ user.uid }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <button class="action-button">
+                Ver
+              </button>
+
+            </td>
+
+          </tr>
+
+
+          <!-- NENHUM USUÁRIO -->
+
+          <tr *ngIf="users.length === 0">
+
+            <td
+              colspan="5"
+              class="empty-state"
+            >
+              Nenhum usuário encontrado.
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- PAGINAÇÃO -->
+
+    <div
+      class="pagination"
+      *ngIf="!loading && !error"
+    >
+
+      <span>
+
+        Mostrando
+        {{ users.length }}
+        de
+        {{ users.length }}
+        usuários
+
+      </span>
+
+    </div>
+
+  </section>
+
+</div>

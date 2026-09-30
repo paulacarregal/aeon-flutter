@@ -45,4 +45,11 @@ dependencies {
     debugImplementation("io.flutter:flutter_embedding_debug:$engineVersion")
     profileImplementation("io.flutter:flutter_embedding_profile:$engineVersion")
     releaseImplementation("io.flutter:flutter_embedding_release:$engineVersion")
+
+
+    implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
+
+  
+    implementation("com.google.firebase:firebase-ai")
+    implementation("com.google.firebase:firebase-appcheck-debug")
 }

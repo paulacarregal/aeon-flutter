@@ -1,0 +1,293 @@
+<div class="dashboard-page">
+
+  <!-- CABEÇALHO -->
+
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">VISÃO GERAL</p>
+      <h1>Painel</h1>
+      <p class="subtitle">Gerencie a plataforma AEON</p>
+    </div>
+
+<div class="admin-profile">
+  <div class="admin-avatar">A</div>
+
+  <div class="admin-info">
+    <strong>Administrador</strong>
+    <span>Admin</span>
+  </div>
+</div>
+
+  </header>
+
+  <!-- BANNER -->
+
+  <section class="welcome-card">
+
+<div class="welcome-content">
+  <p class="eyebrow">BEM-VINDO AO AEON</p>
+
+  <h2>Visão geral da plataforma</h2>
+
+  <p>
+    Acompanhe usuários, profissionais e os principais
+    indicadores da plataforma em um só lugar.
+  </p>
+</div>
+
+<div class="welcome-decoration">
+  ✦
+</div>
+
+  </section>
+
+  <!-- INDICADORES -->
+
+  <section class="metrics">
+
+<article class="metric-card">
+
+  <div class="metric-icon users">
+    ◉
+  </div>
+
+  <div class="metric-content">
+    <span>Usuários</span>
+
+    <strong>
+      {{ totalUsers }}
+    </strong>
+
+    <small>
+      cadastrados
+    </small>
+  </div>
+
+</article>
+
+
+<article class="metric-card">
+
+  <div class="metric-icon professionals">
+    ◆
+  </div>
+
+  <div class="metric-content">
+    <span>Profissionais</span>
+
+    <strong>
+      {{ totalProfessionals }}
+    </strong>
+
+    <small>
+      perfis cadastrados
+    </small>
+  </div>
+
+</article>
+
+
+<article class="metric-card">
+
+  <div class="metric-icon active">
+    ✓
+  </div>
+
+  <div class="metric-content">
+    <span>Usuários ativos</span>
+
+    <strong>
+      {{ activeUsers }}
+    </strong>
+
+    <small>
+      {{ totalUsers ? ((activeUsers / totalUsers) * 100).toFixed(0) : 0 }}% da base
+    </small>
+  </div>
+
+</article>
+
+
+<article class="metric-card">
+
+  <div class="metric-icon pending">
+    !
+  </div>
+
+  <div class="metric-content">
+    <span>Pendências</span>
+
+    <strong>
+      {{ pendingProfessionals }}
+    </strong>
+
+    <small>
+      aguardando revisão
+    </small>
+  </div>
+
+</article>
+
+  </section>
+
+  <!-- CONTEÚDO INFERIOR -->
+
+  <section class="dashboard-grid">
+
+<!-- RESUMO -->
+<article class="panel">
+
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">RESUMO</p>
+      <h3>Status da plataforma</h3>
+    </div>
+  </div>
+
+
+  <div class="summary-list">
+
+    <div class="summary-item">
+
+      <div class="summary-icon users">
+        ◉
+      </div>
+
+      <div class="summary-info">
+        <strong>Usuários cadastrados</strong>
+        <span>Total de contas registradas</span>
+      </div>
+
+      <strong class="summary-value">
+        {{ totalUsers }}
+      </strong>
+
+    </div>
+
+
+    <div class="summary-item">
+
+      <div class="summary-icon professionals">
+        ◆
+      </div>
+
+      <div class="summary-info">
+        <strong>Profissionais</strong>
+        <span>Perfis profissionais cadastrados</span>
+      </div>
+
+      <strong class="summary-value">
+        {{ totalProfessionals }}
+      </strong>
+
+    </div>
+
+
+    <div class="summary-item">
+
+      <div class="summary-icon active">
+        ✓
+      </div>
+
+      <div class="summary-info">
+        <strong>Usuários ativos</strong>
+        <span>Contas atualmente ativas</span>
+      </div>
+
+      <strong class="summary-value">
+        {{ activeUsers }}
+      </strong>
+
+    </div>
+
+
+    <div class="summary-item">
+
+      <div class="summary-icon pending">
+        !
+      </div>
+
+      <div class="summary-info">
+        <strong>Pendências</strong>
+        <span>Perfis aguardando análise</span>
+      </div>
+
+      <strong class="summary-value">
+        {{ pendingProfessionals }}
+      </strong>
+
+    </div>
+
+  </div>
+
+</article>
+
+
+<!-- ACESSO RÁPIDO -->
+<article class="panel quick-panel">
+
+  <div class="panel-header">
+
+    <div>
+      <p class="eyebrow">ACESSO RÁPIDO</p>
+      <h3>Gerenciamento</h3>
+    </div>
+
+  </div>
+
+
+  <a
+    routerLink="/users"
+    class="quick-action"
+  >
+
+    <div class="quick-icon users">
+      ◉
+    </div>
+
+    <div class="quick-info">
+      <strong>Usuários</strong>
+      <span>Gerenciar contas</span>
+    </div>
+
+    <span class="arrow">→</span>
+
+  </a>
+
+
+  <a
+    routerLink="/professional-profiles"
+    class="quick-action"
+  >
+
+    <div class="quick-icon professionals">
+      ◆
+    </div>
+
+    <div class="quick-info">
+      <strong>Profissionais</strong>
+      <span>Gerenciar perfis</span>
+    </div>
+
+    <span class="arrow">→</span>
+
+  </a>
+
+
+  <!-- STATUS -->
+  <div class="system-status">
+
+    <span class="status-dot"></span>
+
+    <div>
+      <strong>Sistema online</strong>
+      <span>API conectada</span>
+    </div>
+
+  </div>
+
+</article>
+
+  </section>
+
+</div>

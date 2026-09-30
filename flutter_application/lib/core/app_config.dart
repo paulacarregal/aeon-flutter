@@ -1,5 +1,8 @@
 
 class AppConfig {
+  static const String backendUrl =
+    'https://aeon-backend-deploy.onrender.com';
+
   static const String openWeatherKey =
       String.fromEnvironment('OPENWEATHER_KEY', defaultValue: '');
 
@@ -10,11 +13,12 @@ class AppConfig {
 
 
   static const String zabbixHost =
-      String.fromEnvironment('ZABBIX_HOST', defaultValue: 'localhost');
+      String.fromEnvironment('ZABBIX_HOST', defaultValue: '');
 
   static const int zabbixPort =
       int.fromEnvironment('ZABBIX_PORT', defaultValue: 10051);
 
   
   static const String zabbixAppHost = 'aeon-flutter';
+  
 }

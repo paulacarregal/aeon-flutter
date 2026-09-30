@@ -1,149 +1,166 @@
-🚀 COMO RODAR O AEON
+# Como Executar o AEON
 
-Este documento explica passo a passo como configurar e executar o projeto.
+Este documento descreve como executar os componentes atuais do projeto:
 
-📌 1. Pré-requisitos
+- Aplicativo Flutter.
+- Backend Spring Boot.
+- Dashboard Angular.
 
-Antes de começar, instale:
+O FastAPI legado foi removido da arquitetura atual. O backend oficial e o Spring Boot.
 
-🔧 Ferramentas obrigatórias
+## 1. Pre-requisitos
 
-Flutter SDK (versão estável)
-https://flutter.dev/docs/get-started/install
-Dart SDK (já incluso no Flutter)
-Android Studio ou VS Code
-Git
-https://git-scm.com/
+- Flutter SDK.
+- Dart SDK compativel com o Flutter instalado.
+- Android Studio ou VS Code.
+- Java JDK 21 para o backend Spring Boot.
+- Node.js e npm.
+- Angular CLI.
+- Git.
+- Chrome, Edge, emulador Android ou dispositivo fisico.
 
-📱 Emulador ou dispositivo físico
+Verificacoes uteis:
 
-Android Emulator (recomendado)
-ou
-Celular Android com modo desenvolvedor ativado
+```bash
+flutter doctor
+java -version
+node -v
+ng version
+```
 
-📦 2. Clonar o projeto
+## 2. Backend Spring Boot
 
-No terminal:
+O backend pode ser usado publicado no Render ou executado localmente.
 
-git clone [https://github.com/paulacarregal/areon-flutter]
+API publicada:
 
-Depois entre na pasta:
+```text
+https://aeon-backend-deploy.onrender.com
+```
 
-cd areon-flutter
+Swagger:
 
-📥 3. Instalar dependências Flutter
+```text
+https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
+```
 
-Execute:
+Para executar localmente:
 
+```bash
+cd aeon-backend
+mvn spring-boot:run
+```
+
+Ou no Windows, usando Maven Wrapper:
+
+```powershell
+cd aeon-backend
+.\mvnw.cmd spring-boot:run
+```
+
+Observacao: o backend esta configurado para Java 21.
+
+## 3. Aplicativo Flutter
+
+Acesse a pasta do app:
+
+```bash
+cd flutter_application
 flutter pub get
+```
 
-🔥 4. Configuração do Firebase
+Listar dispositivos:
 
-O projeto utiliza Firebase para autenticação e banco de dados.
+```bash
+flutter devices
+```
 
-4.1 Verificar arquivos necessários
+Executar no navegador:
 
-Certifique-se de que estes arquivos existem:
+```bash
+flutter run -d edge
+```
 
+ou:
+
+```bash
+flutter run -d chrome
+```
+
+Executar em dispositivo Android conectado:
+
+```bash
+flutter run -d ID_DO_DISPOSITIVO
+```
+
+O Flutter esta configurado para consumir o backend Spring Boot publicado em:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+## 4. Firebase
+
+O app usa Firebase Authentication e outros servicos Firebase. Os arquivos esperados no projeto Flutter sao:
+
+```text
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
+```
 
-4.2 Inicializar Firebase no app
+O backend Spring Boot usa Firebase Admin SDK com credencial configurada por variavel de ambiente no servidor.
 
-O Firebase já está configurado no projeto via FlutterFire CLI.
+## 5. Dashboard Angular
 
-No main.dart, deve existir algo como:
+Acesse a pasta do dashboard:
 
-await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+```bash
+cd aeon-angular
+npm install
+ng serve
+```
 
-4.3 Problemas comuns
+Abra:
 
-Se ocorrer erro:
+```text
+http://localhost:4200
+```
 
-Firebase not initialized
+O Angular consome a mesma API Spring Boot publicada:
 
-execute:
+```text
+https://aeon-backend-deploy.onrender.com/api
+```
 
-flutter clean
-flutter pub get
+## 6. Fluxos de Integracao
 
-🌦️ 5. Configuração de APIs externas
+```text
+Flutter
+    -> Spring Boot REST API
+        -> Firebase Authentication / Firestore / APIs externas
 
-O projeto utiliza API da OpenWeather.
+Angular
+    -> Spring Boot REST API
+```
 
-5.2 Importante
+Fluxos relevantes:
 
-NÃO versionar o .env
-Ele já está no .gitignore
+- Login: Flutter -> Firebase Authentication.
+- Clima: Flutter -> Spring Boot `POST /weather` -> OpenWeather.
+- Reviews: Flutter -> Spring Boot `POST /reviews/validate` -> Flutter grava review no Firestore.
+- Perfis profissionais: Flutter/Angular -> Spring Boot -> Firestore.
+- Usuarios administrativos: Angular -> Spring Boot -> Firebase Authentication.
 
-📦 6. Dependências importantes
+## 7. Ordem Recomendada para Demonstracao
 
-O projeto usa:
+1. Abrir o Swagger do backend publicado.
+2. Executar o Angular com `ng serve`.
+3. Executar o Flutter no navegador ou dispositivo fisico.
+4. Validar login, mapa, clima, review e perfil profissional.
 
-Firebase Core
-Firebase Auth
-Cloud Firestore
-Firebase Messaging
-HTTP
-Provider
-Flutter DotEnv
+## 8. Observacoes
 
-▶️ 7. Rodando o projeto
-
-Execute:
-
-flutter run
-
-ou selecione o device no VS Code e clique em Run
-
-📲 8. Notificações (Firebase Cloud Messaging)
-
-Para testar notificações push:
-
-Android:
-Aceitar permissões no app
-
-Garantir internet ativa
-
-Usar Firebase Console:
-
-Cloud Messaging → Send Test Message
-
-⚠️ 9. Problemas comuns
-❌ Flutter não reconhece comando
-flutter doctor
-
-Corrigir dependências faltantes.
-
-❌ Erro no Firebase
-
-Rodar:
-
-flutter clean
-flutter pub get
-
-❌ Erro de API Key
-
-Verificar se .env existe e está correto.
-
-🧠 10. Estrutura do projeto
-
-O projeto segue organização por camadas:
-
-lib/
- ├── models/
- ├── screens/
- ├── services/
- ├── repositories/
- ├── widgets/
- ├── theme/
- └── main.dart
-🚀 11. Observações finais
-
-O projeto depende de Firebase ativo
-API keys devem ser configuradas localmente
-O app pode ser executado em Android e Web
-Recomenda-se usar Android Studio para emulador
+- O backend publicado no Render pode demorar mais na primeira requisicao apos inatividade.
+- Nao e necessario iniciar nenhum backend Python para a versao atual.
+- O antigo FastAPI nao e dependencia runtime do Flutter, Angular ou Spring.

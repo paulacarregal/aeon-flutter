@@ -1,100 +1,132 @@
-# Conhecendo o AEON
+# AEON
 
-AEON é uma plataforma inteligente de monitoramento urbano desenvolvida para auxiliar usuários na identificação de riscos ambientais, condições climáticas e informações contextuais em tempo real. O projeto combina geolocalização, integração com serviços em nuvem, notificações inteligentes e análise de dados ambientais para fornecer suporte à tomada de decisão em ambientes urbanos.
+## Visao Geral
 
-## Objetivo
+O AEON e uma plataforma multiplataforma para descoberta de experiencias urbanas personalizadas. A solucao combina perfil do usuario, localizacao, clima, avaliacoes e inteligencia artificial para recomendar locais, rotas e experiencias em Sao Paulo.
 
-O objetivo do AEON é utilizar tecnologias modernas de desenvolvimento mobile, computação em nuvem e inteligência artificial e o  monitoramento de  eventos ambientais e disponibilizar informações relevantes aos usuários por meio de mapas interativos, alertas em tempo real e dados climáticos atualizados, e assim, complementar a curadoria urbana de modo que as indicações sejam assertivas e levando em consideração o tempo da cidade.
-
-## Principais Funcionalidades
-
-* Autenticação de usuários com Firebase Authentication
-* Monitoramento de alertas ambientais em tempo real
-* Integração com mapas interativos
-* Exibição de dados climáticos através da OpenWeather API
-* Notificações push utilizando Firebase Cloud Messaging (FCM)
-* Feed social para compartilhamento de informações
-* Sistema de favoritos
-* Perfil do usuário
-* Navegação otimizada entre telas
-* Persistência local de dados
-
-## Tecnologias Utilizadas
-
-### Mobile
-
-* Flutter
-* Dart
-* Provider
-
-### Backend e Serviços
-
-* Firebase Authentication
-* Firebase Firestore
-* Firebase Cloud Messaging (FCM)
-
-### APIs Externas
-
-* OpenWeather API
-* Serviços de Geolocalização
-* Flutter Map
-
-## Estrutura do Projeto
+Arquitetura atual:
 
 ```text
-lib/
-├── models/
-├── providers/
-├── repositories/
-├── routes/
-├── screens/
-├── services/
-├── widgets/
-└── main.dart
+Flutter App
+    -> Spring Boot REST API
+        -> Firebase Authentication
+        -> Cloud Firestore
+        -> APIs externas
+
+Angular Dashboard
+    -> Spring Boot REST API
 ```
 
-## Arquitetura
+O backend principal da aplicacao e o Spring Boot. O backend FastAPI utilizado em fase anterior foi consolidado no Spring Boot e nao faz mais parte da arquitetura atual.
 
-O projeto utiliza uma arquitetura baseada em separação de responsabilidades, dividindo a aplicação em camadas:
+## Funcionalidades
 
-* Models: representação dos dados
-* Services: comunicação com APIs e Firebase
-* Repositories: acesso aos dados
-* Providers: gerenciamento de estado global
-* Screens: telas da aplicação
-* Widgets: componentes reutilizáveis
+### Aplicativo Flutter
 
-## Funcionalidades de Rede
+- Cadastro e login com Firebase Authentication.
+- Onboarding por quiz para formacao do perfil de recomendacao.
+- Perfil do usuario com preferencias ajustaveis.
+- Feed de reviews, curtidas e favoritos.
+- Criacao e publicacao de avaliacoes.
+- Validacao de reviews via Spring Boot.
+- Mapa interativo com OpenStreetMap.
+- Captura de localizacao do dispositivo.
+- Consulta de clima via backend Spring Boot.
+- Recomendacoes personalizadas com apoio de Firebase AI Logic/Gemini.
+- Simulacao de rotas e modais de deslocamento.
 
-O sistema utiliza:
+### Backend Spring Boot
 
-* HTTPS para comunicação com APIs externas
-* gRPC através do Firebase Firestore
-* Firebase Cloud Messaging para notificações push
-* Cloud Firestore para sincronização de dados em tempo real
+- API REST principal do AEON.
+- Health check.
+- Consulta de usuarios do Firebase Authentication.
+- CRUD de perfis profissionais usando Firestore.
+- Validacao e enriquecimento de reviews.
+- Integracao com OpenWeather para clima.
+- Documentacao via Swagger/OpenAPI.
+- Configuracao de seguranca com Spring Security.
 
-## Segurança
+### Dashboard Angular
 
-* Comunicação criptografada via HTTPS/TLS
-* Autenticação gerenciada pelo Firebase
-* Estrutura preparada para adequação à LGPD
-* Persistência segura de dados do usuário
+- Painel administrativo web.
+- Consulta de usuarios.
+- Consulta e gerenciamento de perfis profissionais.
+- Metricas e visualizacao geral da plataforma.
+- Formularios e filtros para apoio administrativo.
+
+## Tecnologias Adotadas
+
+| Categoria | Tecnologia |
+| --- | --- |
+| Mobile | Flutter, Dart |
+| Estado no app | Provider |
+| Backend | Java, Spring Boot, Spring MVC |
+| API | REST, JSON |
+| Seguranca backend | Spring Security |
+| Autenticacao | Firebase Authentication |
+| Banco atual | Cloud Firestore |
+| Integracao Firebase servidor | Firebase Admin SDK |
+| IA | Firebase AI Logic / Gemini |
+| Clima | OpenWeather via Spring Boot |
+| Mapas | Flutter Map / OpenStreetMap |
+| Localizacao | Geolocator |
+| Dashboard web | Angular, TypeScript, HttpClient |
+| Documentacao API | Swagger / OpenAPI |
+| Build backend | Maven |
+| Hospedagem backend | Render |
+| IDEs de apoio | Android Studio, VS Code |
+| Versionamento | Git, GitHub |
+
+Observacao: o projeto contem dependencias de JPA/H2 no backend Spring, mas o fluxo atual de Professional Profile usa Firestore via Firebase Admin SDK. H2/JPA nao sao a persistencia ativa desse fluxo.
+
+## Endpoints Principais
+
+Base publicada:
+
+```text
+https://aeon-backend-deploy.onrender.com
+```
+
+Endpoints usados pela solucao atual:
+
+```http
+GET  /api/health
+GET  /api/users
+GET  /api/professional-profiles
+GET  /api/professional-profiles/{id}
+POST /api/professional-profiles
+PUT  /api/professional-profiles/{id}
+DELETE /api/professional-profiles/{id}
+POST /weather
+POST /reviews/validate
+```
+
+Swagger:
+
+```text
+https://aeon-backend-deploy.onrender.com/swagger-ui/index.html
+```
+
+## Estrutura
+
+```text
+Aeon/
+|-- flutter_application/   # Aplicativo Flutter
+|-- aeon-backend/          # Backend Spring Boot
+|-- aeon-angular/          # Dashboard Angular
+|-- README.md
+```
+
+## Execucao
+
+Consulte:
+
+- `flutter_application/EXECUTE.md` para execucao do Flutter, Spring Boot e Angular.
+- `flutter_application/BACKEND.md` para detalhes da API Spring Boot.
 
 ## Desenvolvedores
 
-* Manoela Oliveira
-* Paula Carregal
-* Pedro Santiago
-* Vanessa Fittipaldi 
-
-## Como Executar
-
-As instruções completas de instalação e execução estão disponíveis em:
-
-```text
-flutter_application/EXECUTE.md
-```
-
-## Repositório
-
-Projeto desenvolvido para fins acadêmicos no contexto das atividades da FIAP, envolvendo desenvolvimento mobile, integração com serviços em nuvem, monitoramento de sistemas e aplicações inteligentes voltadas ao ambiente urbano.
+- Manoela Oliveira
+- Paula Carregal
+- Pedro Santiago
+- Vanessa Fittipaldi

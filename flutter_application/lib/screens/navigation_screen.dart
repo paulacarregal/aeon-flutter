@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'menu_screen.dart';
 import 'maps_screen.dart';
-//import 'review_screen.dart';
 import '../screens/favoritos_screen.dart';
 import '../screens/perfil_screen.dart';
 import '../widgets/bottom_bar.dart';

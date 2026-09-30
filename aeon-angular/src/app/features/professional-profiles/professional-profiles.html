@@ -1,0 +1,616 @@
+<div class="professionals-page">
+
+  <!-- CABEÇALHO -->
+
+  <div class="page-header">
+
+
+<div>
+  <p class="eyebrow">GERENCIAMENTO</p>
+
+  <h1>Perfis profissionais</h1>
+
+  <p class="page-description">
+    Gerencie os profissionais cadastrados e acompanhe suas verificações.
+  </p>
+</div>
+
+<button
+  class="primary-button"
+  type="button"
+  (click)="openForm()"
+>
+  + Novo profissional
+</button>
+
+
+  </div>
+
+  <!-- FORMULÁRIO -->
+
+  <div
+    class="professional-form"
+    *ngIf="showForm"
+  >
+
+
+<div class="form-header">
+
+  <div>
+    <span class="eyebrow">CADASTRO</span>
+
+    <h2>Novo profissional</h2>
+
+    <p>
+      Cadastre um novo perfil profissional na plataforma AEON.
+    </p>
+  </div>
+
+</div>
+
+
+<div class="form-grid">
+
+  <!-- UID -->
+
+  <div class="form-group">
+
+    <label>UID do usuário *</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.ownerUid"
+      placeholder="UID do usuário"
+    />
+
+  </div>
+
+
+  <!-- TIPO -->
+
+  <div class="form-group">
+
+    <label>Tipo *</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.type"
+      placeholder="Ex.: Profissional"
+    />
+
+  </div>
+
+
+  <!-- NOME -->
+
+  <div class="form-group">
+
+    <label>Nome *</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.displayName"
+      placeholder="Nome do profissional"
+    />
+
+  </div>
+
+
+  <!-- CATEGORIA -->
+
+  <div class="form-group">
+
+    <label>Categoria *</label>
+
+    <select [(ngModel)]="form.category">
+
+      <option value="">
+        Selecione
+      </option>
+
+      <option value="Psicologia">
+        Psicologia
+      </option>
+
+      <option value="Nutrição">
+        Nutrição
+      </option>
+
+      <option value="Fisioterapia">
+        Fisioterapia
+      </option>
+
+      <option value="Medicina">
+        Medicina
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- DOCUMENTO -->
+
+  <div class="form-group">
+
+    <label>Documento</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.document"
+      placeholder="CPF ou registro profissional"
+    />
+
+  </div>
+
+
+  <!-- TELEFONE -->
+
+  <div class="form-group">
+
+    <label>Telefone</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.phone"
+      placeholder="(00) 00000-0000"
+    />
+
+  </div>
+
+
+  <!-- CIDADE -->
+
+  <div class="form-group">
+
+    <label>Cidade *</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.city"
+      placeholder="Cidade"
+    />
+
+  </div>
+
+
+  <!-- ENDEREÇO -->
+
+  <div class="form-group">
+
+    <label>Endereço</label>
+
+    <input
+      type="text"
+      [(ngModel)]="form.address"
+      placeholder="Endereço"
+    />
+
+  </div>
+
+
+  <!-- DESCRIÇÃO -->
+
+  <div class="form-group full-width">
+
+    <label>Descrição</label>
+
+    <textarea
+      [(ngModel)]="form.description"
+      rows="4"
+      placeholder="Descrição do profissional"
+    ></textarea>
+
+  </div>
+
+</div>
+
+
+<!-- AÇÕES DO FORMULÁRIO -->
+
+<div class="form-actions">
+
+  <button
+    type="button"
+    class="secondary-button"
+    (click)="closeForm()"
+    [disabled]="saving"
+  >
+    Cancelar
+  </button>
+
+  <button
+    type="button"
+    class="primary-button"
+    (click)="createProfessional()"
+    [disabled]="saving"
+  >
+    {{ saving ? 'Cadastrando...' : 'Cadastrar profissional' }}
+  </button>
+
+</div>
+
+
+  </div>
+
+  <!-- MÉTRICAS -->
+
+  <section class="metrics">
+
+<article class="metric-card">
+
+  <div class="metric-icon professional-icon">
+
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+
+      <path
+        d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+        stroke="currentColor"
+        stroke-width="1.8"
+      />
+
+      <path
+        d="M4 21a8 8 0 0 1 16 0"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+      />
+
+    </svg>
+
+  </div>
+
+  <div>
+
+    <span>Total de profissionais</span>
+
+    <strong>
+      {{ totalProfessionals }}
+    </strong>
+
+    <small>
+      Dados da API
+    </small>
+
+  </div>
+
+</article>
+
+
+<article class="metric-card">
+
+  <div class="metric-icon approved-icon">
+    ✓
+  </div>
+
+  <div>
+
+    <span>Perfis aprovados</span>
+
+    <strong>
+      {{ approvedProfessionals }}
+    </strong>
+
+    <small>
+      Perfis aprovados
+    </small>
+
+  </div>
+
+</article>
+
+
+<article class="metric-card">
+
+  <div class="metric-icon pending-icon">
+    !
+  </div>
+
+  <div>
+
+    <span>Pendentes</span>
+
+    <strong>
+      {{ pendingProfessionals }}
+    </strong>
+
+    <small>
+      Aguardando análise
+    </small>
+
+  </div>
+
+</article>
+
+
+<article class="metric-card">
+
+  <div class="metric-icon rejected-icon">
+    ×
+  </div>
+
+  <div>
+
+    <span>Recusados</span>
+
+    <strong>
+      {{ rejectedProfessionals }}
+    </strong>
+
+    <small>
+      Requer atenção
+    </small>
+
+  </div>
+
+</article>
+
+
+  </section>
+
+  <!-- LISTA DE PROFISSIONAIS -->
+
+  <section class="professionals-panel">
+
+
+<div class="panel-header">
+
+  <div>
+
+    <span class="eyebrow">
+      PROFISSIONAIS
+    </span>
+
+    <h2>
+      Lista de profissionais
+    </h2>
+
+  </div>
+
+</div>
+
+
+<!-- FILTROS -->
+
+<div class="toolbar">
+
+  <div class="search-box">
+
+    <span class="search-icon">
+      ⌕
+    </span>
+
+    <input
+      type="text"
+      placeholder="Buscar profissional..."
+      [(ngModel)]="searchTerm"
+      (input)="filterProfessionals()"
+    />
+
+  </div>
+
+
+  <select
+    [(ngModel)]="selectedStatus"
+    (change)="filterProfessionals()"
+  >
+
+    <option value="">
+      Todos os status
+    </option>
+
+    <option value="approved">
+      Aprovado
+    </option>
+
+    <option value="pending">
+      Pendente
+    </option>
+
+    <option value="rejected">
+      Recusado
+    </option>
+
+  </select>
+
+
+  <select
+    [(ngModel)]="selectedCategory"
+    (change)="filterProfessionals()"
+  >
+
+    <option value="">
+      Todas as especialidades
+    </option>
+
+    <option value="Psicologia">
+      Psicologia
+    </option>
+
+    <option value="Nutrição">
+      Nutrição
+    </option>
+
+    <option value="Fisioterapia">
+      Fisioterapia
+    </option>
+
+    <option value="Medicina">
+      Medicina
+    </option>
+
+  </select>
+
+</div>
+
+
+<!-- ERRO -->
+
+<div
+  class="message error-message"
+  *ngIf="error"
+>
+  {{ error }}
+</div>
+
+
+<!-- CARREGANDO -->
+
+<div
+  class="message loading-message"
+  *ngIf="loading"
+>
+  Carregando profissionais...
+</div>
+
+
+<!-- TABELA -->
+
+<div
+  class="table-container"
+  *ngIf="!loading && !error"
+>
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>
+          Profissional
+        </th>
+
+        <th>
+          Especialidade
+        </th>
+
+        <th>
+          Localização
+        </th>
+
+        <th>
+          Status
+        </th>
+
+        <th>
+          Ações
+        </th>
+
+      </tr>
+
+    </thead>
+
+
+    <tbody>
+
+      <tr
+        *ngFor="let professional of filteredProfessionals"
+      >
+
+        <td>
+
+          <div class="professional-cell">
+
+            <div class="professional-avatar">
+
+              {{ getInitials(professional.displayName) }}
+
+            </div>
+
+            <div>
+
+              <strong>
+                {{ professional.displayName || 'Sem nome' }}
+              </strong>
+
+              <span>
+                {{ professional.document || 'Documento não informado' }}
+              </span>
+
+            </div>
+
+          </div>
+
+        </td>
+
+
+        <td>
+          {{ professional.category || 'Não informado' }}
+        </td>
+
+
+        <td>
+          {{ professional.city || 'Não informado' }}
+        </td>
+
+
+        <td>
+
+          <span
+            class="status"
+            [ngClass]="getStatusClass(professional.status)"
+          >
+            {{ getStatusLabel(professional.status) }}
+          </span>
+
+        </td>
+
+
+        <td>
+
+          <button
+            type="button"
+            class="action-button"
+          >
+            Ver
+          </button>
+
+        </td>
+
+      </tr>
+
+
+      <tr
+        *ngIf="filteredProfessionals.length === 0"
+      >
+
+        <td
+          colspan="5"
+          class="empty-state"
+        >
+          Nenhum profissional encontrado.
+        </td>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+
+<!-- PAGINAÇÃO -->
+
+<div class="pagination">
+
+  <span>
+
+    Mostrando
+    {{ filteredProfessionals.length }}
+    de
+    {{ professionals.length }}
+    profissionais
+
+  </span>
+
+</div>
+
+
+  </section>
+
+</div>

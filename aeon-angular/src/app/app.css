@@ -1,0 +1,358 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+
+/* =========================
+   LAYOUT
+========================= */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 16px;
+
+  background: #1f1636;
+  color: white;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================
+   BRAND
+========================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 12px 32px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #7c4dff;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.brand-text strong {
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.brand-text span {
+  color: #aaa3bd;
+  font-size: 12px;
+}
+
+
+/* =========================
+   NAVEGAÇÃO
+========================= */
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.navigation a {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 14px 16px;
+
+  border-radius: 10px;
+
+  color: #c8c4d6;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navigation a:hover {
+  background: #2e2448;
+  color: white;
+
+  transform: translateX(2px);
+}
+
+.navigation a.active {
+  background: #7c4dff;
+  color: white;
+}
+
+
+/* =========================
+   ÍCONES
+========================= */
+
+.icon {
+  width: 22px;
+
+  display: flex;
+  justify-content: center;
+
+  font-size: 18px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.sidebar-footer {
+  margin-top: auto;
+
+  padding: 18px 12px 8px;
+
+  border-top: 1px solid #392d54;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.system-status {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #4ade80;
+
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+.sidebar-footer small {
+  color: #aaa3bd;
+
+  font-size: 11px;
+}
+
+
+/* =========================
+   CONTEÚDO
+========================= */
+
+.main-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+
+/* =========================
+   TOPBAR
+========================= */
+
+.topbar {
+  min-height: 88px;
+
+  padding: 20px 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: white;
+
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+
+  color: #7c4dff;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+}
+
+.topbar h1 {
+  margin: 0;
+
+  color: #1f1636;
+
+  font-size: 24px;
+}
+
+
+/* =========================
+   ADMIN
+========================= */
+
+.admin-profile {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #7c4dff;
+
+  color: white;
+
+  font-weight: 700;
+}
+
+.admin-profile div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.admin-profile strong {
+  color: #1f1636;
+
+  font-size: 14px;
+}
+
+.admin-profile span {
+  color: #888;
+
+  font-size: 12px;
+}
+
+
+/* =========================
+   PÁGINAS
+========================= */
+
+.page-content {
+  flex: 1;
+
+  padding: 32px;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 768px) {
+
+  .sidebar {
+    width: 80px;
+
+    padding: 20px 10px;
+  }
+
+  .brand {
+    justify-content: center;
+
+    padding-bottom: 30px;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .navigation a {
+    justify-content: center;
+
+    padding: 14px 10px;
+  }
+
+  .navigation a span:last-child {
+    display: none;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .topbar {
+    padding: 20px;
+  }
+
+  .admin-profile div:last-child {
+    display: none;
+  }
+
+  .page-content {
+    padding: 20px;
+  }
+}

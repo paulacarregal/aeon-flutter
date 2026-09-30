@@ -1,0 +1,105 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /professionalProfiles/{uid} {
+
+      function isOwner() {
+        return request.auth != null
+          && request.auth.uid == uid;
+      }
+
+      function validType(data) {
+        return data.type in [
+          'establishment',
+          'brand',
+          'creator'
+        ];
+      }
+
+      function validString(data, field, minLength, maxLength) {
+        return data.get(field, '') is string
+          && data.get(field, '').size() >= minLength
+          && data.get(field, '').size() <= maxLength;
+      }
+
+      function validOptionalString(data, field, maxLength) {
+        return data.get(field, '') is string
+          && data.get(field, '').size() <= maxLength;
+      }
+
+      function validProfile(data) {
+        return data.ownerUid == uid
+          && validType(data)
+          && data.status == 'pending'
+
+          && validString(data, 'displayName', 2, 80)
+          && validString(data, 'category', 2, 80)
+
+          && validOptionalString(data, 'document', 14)
+
+          && (
+            data.get('document', '') == ''
+            || data.get('document', '').size() == 14
+          )
+
+          && validOptionalString(data, 'description', 300)
+          && validOptionalString(data, 'phone', 20)
+          && validOptionalString(data, 'website', 200)
+          && validOptionalString(data, 'instagram', 80)
+          && validOptionalString(data, 'city', 80)
+          && validOptionalString(data, 'address', 160);
+      }
+
+      allow read: if isOwner();
+
+      allow create: if isOwner()
+        && request.resource.data.keys().hasOnly([
+          'ownerUid',
+          'type',
+          'displayName',
+          'category',
+          'document',
+          'description',
+          'phone',
+          'website',
+          'instagram',
+          'city',
+          'address',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && request.resource.data.ownerUid == uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        && validProfile(request.resource.data);
+
+      allow update: if isOwner()
+        && resource.data.ownerUid == uid
+        && resource.data.status == 'pending'
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.status == 'pending'
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            'type',
+            'displayName',
+            'category',
+            'document',
+            'description',
+            'phone',
+            'website',
+            'instagram',
+            'city',
+            'address',
+            'updatedAt'
+          ])
+        && request.resource.data.updatedAt is timestamp
+        && validProfile(request.resource.data);
+
+      allow delete: if false;
+    }
+  }
+}

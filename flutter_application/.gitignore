@@ -21,7 +21,7 @@ migrate_working_dir/
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
-#.vscode/
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -44,7 +44,30 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# secrets
+# Environment / secrets
 .env
+.env.*
+!.env.example
 
+# Server credentials
+serviceAccount.json
+firebase-adminsdk-*.json
+google-credentials.json
+*-service-account.json
 
+# Private keys / certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local secret directories
+secrets/
+.secret/
+
+# Firebase local cache/config
+.firebase/
+
+# Local macOS Firebase file. Android/Web/iOS Firebase config is part of the
+# academic delivery so the app runs against the same project used in the MVP.
+macos/Runner/GoogleService-Info.plist

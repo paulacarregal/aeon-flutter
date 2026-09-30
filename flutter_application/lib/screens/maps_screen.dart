@@ -13,6 +13,8 @@ import '../providers/alert_provider.dart';
 
 import '../services/notification_service.dart';
 
+import '../shared/routes/route_names.dart';
+
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
 
@@ -421,7 +423,10 @@ class _MapsScreenState extends State<MapsScreen> {
               final place = places[index];
 
               return GestureDetector(
-                onTap: () => Navigator.pushNamed(context, '/postDetail'),
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  RouteNames.postDetail,
+                ),
                 child: Container(
                   width: 170,
                   margin: const EdgeInsets.only(right: 16),
