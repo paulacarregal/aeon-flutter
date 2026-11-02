@@ -225,7 +225,7 @@ jobs:
           @aeon-backend/database/oracle/06_devops_upgrade.sql
           @aeon-backend/database/oracle/03_functions.sql
           @aeon-backend/database/oracle/04_procedures.sql
-          @aeon-backend/database/oracle/07_validate_deployment.sql
+          @aeon-backend/database/oracle/07_validacao.sql
           EXIT 0
           SQL
 
