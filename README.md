@@ -51,12 +51,17 @@ O backend principal da aplicacao e o Spring Boot. A camada Oracle complementa o 
 ### Oracle PL/SQL
 
 - Modelo relacional para usuarios, locais, tags, interacoes, avaliacoes e historico de recomendacoes.
+- Tabelas de impulsionamento comercial e auditoria de recomendacoes.
+- Package `PKG_AEON_RECOMENDACAO` centralizando as regras de recomendacao.
 - Function `FN_CALCULAR_AFINIDADE` para calcular score de afinidade entre usuario e local.
 - Function `FN_RESUMO_LOCAL` para gerar resumo textual do local.
 - Function `FN_CLASSIFICAR_AFINIDADE` para classificar scores em faixas simples.
+- Functions de bonus por proximidade, bonus por impulsionamento e score final.
 - Procedure `PR_REGISTRAR_INTERACAO` para registrar comportamento do usuario.
 - Procedure `PR_GERAR_RECOMENDACOES` para consolidar recomendacoes no historico.
 - Procedure `PR_ATUALIZAR_NOTA_MEDIA_LOCAL` para recalcular a nota media de um local.
+- Procedure `PR_BUSCAR_RECOMENDACOES_DINAMICAS` com Dynamic SQL e `SYS_REFCURSOR`.
+- Triggers para atualizar nota media e auditar campanhas de impulsionamento.
 
 ### Dashboard Angular
 
@@ -112,6 +117,18 @@ Principais tabelas:
 - `INTERACAO_USUARIO`: registra `VISUALIZOU`, `CURTIU`, `SALVOU`, `VISITOU` e `IGNOROU`.
 - `AVALIACAO`: armazena notas e comentarios.
 - `HISTORICO_RECOMENDACAO`: guarda recomendacoes geradas por score.
+- `LOCAL_IMPULSIONAMENTO`: campanhas comerciais com status, periodo e peso de bonus.
+- `AUDITORIA_IMPULSIONAMENTO`: auditoria de criacao e alteracao das campanhas.
+- `AUDITORIA_RECOMENDACAO`: detalha afinidade, proximidade, impulsionamento e score final.
+
+O AEON usa o perfil inicial do quiz para gerar afinidade direta. Alem disso, considera locais complementares por proximidade e campanhas comerciais de impulsionamento. O impulsionamento nao compra simplesmente o topo do ranking; ele aparece quando existe contexto minimo de relevancia, como afinidade, proximidade, boa avaliacao ou jornada complementar.
+
+Tipos de recomendacao auditados:
+
+- `PRINCIPAL`: afinidade direta forte.
+- `COMPLEMENTAR`: relevancia por proximidade com outro local compativel.
+- `IMPULSIONADA`: campanha ativa com contexto minimo.
+- `COMPLEMENTAR_IMPULSIONADA`: campanha ativa combinada com proximidade complementar.
 
 ## Dados De Teste
 
@@ -165,8 +182,8 @@ Variaveis para rodar o backend com Oracle:
 ```powershell
 $env:PORT="8081"
 $env:ORACLE_URL="jdbc:oracle:thin:@//oracle.fiap.com.br:1521/ORCL"
-$env:ORACLE_USER="seu_usuario"
-$env:ORACLE_PASSWORD="sua_senha"
+$env:ORACLE_USER="usuario"
+$env:ORACLE_PASSWORD="senha"
 $env:ORACLE_DRIVER="oracle.jdbc.OracleDriver"
 ```
 
@@ -224,15 +241,32 @@ SELECT
     status
 FROM user_objects
 WHERE object_name IN (
+    'PKG_AEON_RECOMENDACAO',
     'FN_CALCULAR_AFINIDADE',
     'FN_RESUMO_LOCAL',
     'FN_CLASSIFICAR_AFINIDADE',
     'PR_REGISTRAR_INTERACAO',
     'PR_GERAR_RECOMENDACOES',
-    'PR_ATUALIZAR_NOTA_MEDIA_LOCAL'
+    'PR_ATUALIZAR_NOTA_MEDIA_LOCAL',
+    'PR_BUSCAR_RECOMENDACOES_DINAMICAS',
+    'TRG_AVALIACAO_ATUALIZA_MEDIA',
+    'TRG_AUDITA_IMPULSIONAMENTO'
 )
 ORDER BY object_type, object_name;
 ```
+
+## CI/CD
+
+O backend possui pipeline em GitHub Actions com:
+
+- build Maven e testes automatizados em Java 21;
+- relatorios JUnit e cobertura JaCoCo;
+- revisao de novas dependencias em pull requests;
+- publicacao da imagem Docker no GitHub Container Registry;
+- atualizacao incremental e validacao dos objetos Oracle via SQLcl;
+- logs e artefatos armazenados em cada execucao.
+
+O deploy Oracle usa Secrets do Environment `oracle`. Credenciais nao ficam no repositorio. Consulte `docs/ci-cd.md` para configuracao e execucao.
 
 ## Estrutura
 
@@ -248,6 +282,7 @@ Aeon/
 ## Documentacao Complementar
 
 - `docs/oracle-plsql.md` detalha o modelo Oracle, regras de score, functions, procedures e exemplos de apresentacao.
+- `docs/ci-cd.md` detalha o pipeline GitHub Actions, artefatos, imagem Docker e deploy Oracle.
 - `flutter_application/EXECUTE.md` descreve a execucao do Flutter, Spring Boot e Angular.
 - `flutter_application/BACKEND.md` descreve detalhes da API Spring Boot.
 

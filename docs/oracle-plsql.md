@@ -22,7 +22,7 @@ Fluxos preservados:
 
 ## Evolucao Tecnica
 
-O score combina tres fontes principais:
+O score combina cinco fontes principais:
 
 ```text
 Preferencias declaradas
@@ -30,11 +30,28 @@ Preferencias declaradas
 Contexto/caracteristicas do local
 +
 Comportamento historico
++
+Proximidade complementar
++
+Impulsionamento contextual
 ```
 
 Preferencias declaradas representam o que o usuario informa gostar no quiz/perfil. Historico representa o que ele efetivamente faz no app. Caracteristicas e tags descrevem os locais. Avaliacoes ajudam a identificar afinidade por categoria.
 
-O Oracle atua como camada deterministica de scoring e persistencia. A function `FN_CALCULAR_AFINIDADE` aplica regras explicitas, auditaveis e reproduziveis, sem substituir outras camadas de recomendacao do AEON.
+O Oracle atua como camada deterministica de scoring e persistencia. O package `PKG_AEON_RECOMENDACAO` centraliza as regras explicitas, auditaveis e reproduziveis, sem substituir outras camadas de recomendacao do AEON. Os objetos publicos antigos continuam existindo como wrappers para preservar a integracao JDBC do backend.
+
+## Package De Recomendacao
+
+`PKG_AEON_RECOMENDACAO` agrupa as regras principais:
+
+- `FN_CALCULAR_AFINIDADE`: calcula afinidade direta entre usuario e local.
+- `FN_CALCULAR_BONUS_PROXIMIDADE`: identifica locais complementares proximos de locais com alta afinidade para o usuario.
+- `FN_CALCULAR_BONUS_IMPULSIONAMENTO`: aplica bonus comercial somente quando existe campanha ativa e contexto minimo de relevancia.
+- `FN_CALCULAR_SCORE_FINAL`: combina afinidade, proximidade e impulsionamento, limitado entre 0 e 100.
+- `PR_GERAR_RECOMENDACOES`: grava `HISTORICO_RECOMENDACAO` e audita a composicao do score em `AUDITORIA_RECOMENDACAO`.
+- `PR_BUSCAR_RECOMENDACOES_DINAMICAS`: demonstra Dynamic SQL com filtros flexiveis e ordenacao validada.
+
+O AEON usa o perfil inicial do quiz para gerar afinidade direta. Alem disso, considera locais complementares por proximidade e campanhas comerciais de impulsionamento. O impulsionamento nao compra simplesmente o topo do ranking; ele aparece quando existe contexto minimo de relevancia, como afinidade, proximidade, boa avaliacao ou jornada complementar.
 
 ## Mapeamento Com Flutter
 
@@ -71,6 +88,10 @@ erDiagram
     LOCAL ||--o{ AVALIACAO : recebe
     USUARIO ||--o{ HISTORICO_RECOMENDACAO : recebe
     LOCAL ||--o{ HISTORICO_RECOMENDACAO : recomendado
+    LOCAL ||--o{ LOCAL_IMPULSIONAMENTO : possui
+    LOCAL_IMPULSIONAMENTO ||--o{ AUDITORIA_IMPULSIONAMENTO : audita
+    USUARIO ||--o{ AUDITORIA_RECOMENDACAO : audita
+    LOCAL ||--o{ AUDITORIA_RECOMENDACAO : audita
 
     USUARIO {
         NUMBER ID_USUARIO PK
@@ -140,6 +161,42 @@ erDiagram
         NUMBER SCORE
         TIMESTAMP DATA_RECOMENDACAO
     }
+
+    LOCAL_IMPULSIONAMENTO {
+        NUMBER ID_IMPULSIONAMENTO PK
+        NUMBER ID_LOCAL FK
+        DATE DATA_INICIO
+        DATE DATA_FIM
+        NUMBER PESO_BONUS
+        VARCHAR2 STATUS
+        VARCHAR2 OBJETIVO
+        TIMESTAMP DATA_CRIACAO
+    }
+
+    AUDITORIA_IMPULSIONAMENTO {
+        NUMBER ID_AUDITORIA PK
+        NUMBER ID_IMPULSIONAMENTO FK
+        NUMBER ID_LOCAL FK
+        VARCHAR2 ACAO
+        VARCHAR2 STATUS_ANTERIOR
+        VARCHAR2 STATUS_NOVO
+        NUMBER PESO_ANTERIOR
+        NUMBER PESO_NOVO
+        TIMESTAMP DATA_EVENTO
+    }
+
+    AUDITORIA_RECOMENDACAO {
+        NUMBER ID_AUDITORIA PK
+        NUMBER ID_USUARIO FK
+        NUMBER ID_LOCAL FK
+        VARCHAR2 TIPO_RECOMENDACAO
+        NUMBER SCORE_AFINIDADE
+        NUMBER BONUS_PROXIMIDADE
+        NUMBER BONUS_IMPULSIONAMENTO
+        NUMBER SCORE_FINAL
+        VARCHAR2 JUSTIFICATIVA
+        TIMESTAMP DATA_EVENTO
+    }
 ```
 
 ### Tabelas
@@ -152,12 +209,16 @@ erDiagram
 - `INTERACAO_USUARIO`: registra `VISUALIZOU`, `CURTIU`, `SALVOU`, `VISITOU` e `IGNOROU`.
 - `AVALIACAO`: armazena notas e comentarios por usuario/local.
 - `HISTORICO_RECOMENDACAO`: armazena recomendacoes geradas por score.
+- `LOCAL_IMPULSIONAMENTO`: campanhas comerciais por local, com status, vigencia e limite de bonus.
+- `AUDITORIA_IMPULSIONAMENTO`: registra inserts e updates das campanhas.
+- `AUDITORIA_RECOMENDACAO`: registra como o score final foi formado em cada geracao.
 
 Constraints principais:
 
 - PKs e FKs em todas as relacoes.
 - `UNIQUE` em `USUARIO.FIREBASE_UID`, `TAG.NOME` e `HISTORICO_RECOMENDACAO(ID_USUARIO, ID_LOCAL)`.
 - Checks para flags `S/N`, nota, status, faixa de preco e tipos de interacao.
+- Checks para status de campanha, peso maximo de impulsionamento, periodo valido e scores auditados.
 
 ### Dados Simulados
 
@@ -186,7 +247,21 @@ Distribuicao:
 - Interacao direta com o local: ate 10 pontos. Interacoes positivas com o proprio local somam 5 pontos cada, limitado a 10. Visualizacao simples nao entra como preferencia forte.
 - Avaliacoes anteriores: ate 15 pontos. A media de notas do usuario na mesma categoria e convertida proporcionalmente para 15 pontos.
 
+`FN_CALCULAR_SCORE_FINAL` soma a afinidade direta com dois bonus controlados:
+
+- Bonus de proximidade: ate 12 pontos. Um local candidato recebe bonus quando esta proximo de outro local ativo com alta afinidade para o mesmo usuario. Isso permite recomendacoes complementares durante uma jornada, por exemplo sugerir uma experiencia proxima de um local outdoor forte para Ken.
+- Bonus de impulsionamento: ate 12 pontos, limitado pelo `PESO_BONUS` da campanha. O bonus exige campanha `ATIVO`, periodo vigente, local ativo e pelo menos um contexto minimo: boa nota, afinidade minima ou proximidade complementar.
+
+Tipos registrados em `AUDITORIA_RECOMENDACAO`:
+
+- `PRINCIPAL`: recomendacao sustentada principalmente pela afinidade direta.
+- `COMPLEMENTAR`: local que ganha relevancia por proximidade com outro local muito compativel.
+- `IMPULSIONADA`: local com campanha ativa e contexto minimo de relevancia.
+- `COMPLEMENTAR_IMPULSIONADA`: local que combina proximidade complementar e campanha ativa.
+
 ## Functions
+
+As functions publicas continuam disponiveis com os mesmos nomes para o backend Java. Internamente, elas chamam `PKG_AEON_RECOMENDACAO`.
 
 ### `FN_CALCULAR_AFINIDADE`
 
@@ -272,6 +347,8 @@ ORDER BY score DESC;
 
 ## Procedures
 
+As procedures publicas tambem foram preservadas como wrappers do package.
+
 ### `PR_REGISTRAR_INTERACAO`
 
 Arquivo: `aeon-backend/database/oracle/04_procedures.sql`
@@ -303,7 +380,7 @@ CURSOR locais ativos
 -> DELETE recomendacoes antigas abaixo do threshold
 ```
 
-O threshold foi ajustado para 55 porque a nova funcao tem mais fontes de pontuacao. Esse limite exige mais do que um sinal isolado: em geral, o usuario precisa ter combinacao de tags, preferencias contextuais e/ou comportamento historico.
+O threshold permanece em 55, agora usando `FN_CALCULAR_SCORE_FINAL`. Esse limite exige mais do que um sinal isolado: em geral, o usuario precisa ter combinacao de tags, preferencias contextuais, comportamento historico, proximidade complementar ou impulsionamento com contexto minimo.
 
 ### `PR_ATUALIZAR_NOTA_MEDIA_LOCAL`
 
@@ -328,6 +405,29 @@ LOCAL.NOTA_MEDIA
 ```
 
 Ela pode ser usada como rotina interna de manutencao apos novas avaliacoes, sem exigir novo endpoint REST.
+
+### `PR_BUSCAR_RECOMENDACOES_DINAMICAS`
+
+Parametros:
+
+- `p_id_usuario IN NUMBER`
+- `p_categoria IN VARCHAR2 DEFAULT NULL`
+- `p_somente_impulsionados IN CHAR DEFAULT 'N'`
+- `p_nota_minima IN NUMBER DEFAULT NULL`
+- `p_ordem IN VARCHAR2 DEFAULT 'SCORE'`
+- `p_resultado OUT SYS_REFCURSOR`
+
+A procedure monta uma consulta dinamicamente para recomendacoes em tempo real. A ordenacao aceita somente `SCORE`, `NOTA` ou `NOME`, reduzindo risco de SQL injection. Os demais filtros usam bind variables.
+
+## Triggers
+
+### `TRG_AVALIACAO_ATUALIZA_MEDIA`
+
+Atualiza automaticamente `LOCAL.NOTA_MEDIA` depois de inserts, updates ou deletes em `AVALIACAO`. A trigger foi implementada como compound trigger para acumular os locais afetados e recalcular a media depois da instrucao, evitando consulta direta na tabela mutante.
+
+### `TRG_AUDITA_IMPULSIONAMENTO`
+
+Registra em `AUDITORIA_IMPULSIONAMENTO` cada insert ou update em `LOCAL_IMPULSIONAMENTO`, guardando acao, status anterior/novo, peso anterior/novo e data do evento.
 
 ## Integracao Java
 
@@ -381,6 +481,8 @@ Ordem dos scripts:
 @aeon-backend/database/oracle/04_procedures.sql
 @aeon-backend/database/oracle/05_examples.sql
 ```
+
+`03_functions.sql` cria o package e os wrappers de functions. `04_procedures.sql` cria os wrappers de procedures e as triggers. Essa ordem mantem os nomes chamados pelo Java e permite validar todos os objetos no SQL Developer.
 
 Rodar backend:
 
@@ -481,12 +583,16 @@ SELECT
     status
 FROM user_objects
 WHERE object_name IN (
+    'PKG_AEON_RECOMENDACAO',
     'FN_CALCULAR_AFINIDADE',
     'FN_RESUMO_LOCAL',
     'FN_CLASSIFICAR_AFINIDADE',
     'PR_REGISTRAR_INTERACAO',
     'PR_GERAR_RECOMENDACOES',
-    'PR_ATUALIZAR_NOTA_MEDIA_LOCAL'
+    'PR_ATUALIZAR_NOTA_MEDIA_LOCAL',
+    'PR_BUSCAR_RECOMENDACOES_DINAMICAS',
+    'TRG_AVALIACAO_ATUALIZA_MEDIA',
+    'TRG_AUDITA_IMPULSIONAMENTO'
 )
 ORDER BY object_type, object_name;
 ```

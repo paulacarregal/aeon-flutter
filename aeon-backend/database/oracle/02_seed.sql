@@ -400,4 +400,84 @@ VALUES (3, 2, 4.6, 'Agenda cultural interessante.', SYSTIMESTAMP - INTERVAL '6' 
 INSERT INTO avaliacao (id_usuario, id_local, nota, comentario, data_avaliacao)
 VALUES (3, 1, 4.4, 'Bistro confortavel e urbano.', SYSTIMESTAMP - INTERVAL '3' DAY);
 
+INSERT INTO local_impulsionamento (
+    id_impulsionamento,
+    id_local,
+    data_inicio,
+    data_fim,
+    peso_bonus,
+    status,
+    objetivo,
+    data_criacao
+) VALUES (
+    1,
+    1,
+    TRUNC(SYSDATE) - 5,
+    TRUNC(SYSDATE) + 20,
+    8,
+    'ATIVO',
+    'Promover experiencia gastronomica premium para perfis sociais.',
+    SYSTIMESTAMP - INTERVAL '5' DAY
+);
+
+INSERT INTO local_impulsionamento (
+    id_impulsionamento,
+    id_local,
+    data_inicio,
+    data_fim,
+    peso_bonus,
+    status,
+    objetivo,
+    data_criacao
+) VALUES (
+    2,
+    7,
+    TRUNC(SYSDATE) - 3,
+    TRUNC(SYSDATE) + 15,
+    6,
+    'ATIVO',
+    'Apoiar descoberta complementar proxima de jornadas outdoor e experiencia.',
+    SYSTIMESTAMP - INTERVAL '3' DAY
+);
+
+INSERT INTO local_impulsionamento (
+    id_impulsionamento,
+    id_local,
+    data_inicio,
+    data_fim,
+    peso_bonus,
+    status,
+    objetivo,
+    data_criacao
+) VALUES (
+    3,
+    5,
+    TRUNC(SYSDATE) - 10,
+    TRUNC(SYSDATE) + 10,
+    10,
+    'PAUSADO',
+    'Campanha pausada para demonstrar ausencia de bonus comercial.',
+    SYSTIMESTAMP - INTERVAL '10' DAY
+);
+
+INSERT INTO local_impulsionamento (
+    id_impulsionamento,
+    id_local,
+    data_inicio,
+    data_fim,
+    peso_bonus,
+    status,
+    objetivo,
+    data_criacao
+) VALUES (
+    4,
+    2,
+    TRUNC(SYSDATE) - 30,
+    TRUNC(SYSDATE) - 1,
+    5,
+    'ENCERRADO',
+    'Campanha encerrada para validar janela de vigencia.',
+    SYSTIMESTAMP - INTERVAL '30' DAY
+);
+
 COMMIT;
